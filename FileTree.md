@@ -1,6 +1,6 @@
 # File Tree: frontend
 
-**Generated:** 11/20/2025, 12:15:59 PM
+**Generated:** 11/21/2025, 11:43:07 AM
 **Root Path:** `c:\xampp\htdocs\New folder\frontend`
 
 ```
@@ -18,12 +18,26 @@
 │   ├── 📄 layout.tsx
 │   └── 📄 page.tsx
 ├── 📁 components
+│   ├── 📁 ui
+│   │   ├── 📄 avatar.tsx
+│   │   ├── 📄 badge.tsx
+│   │   ├── 📄 button.tsx
+│   │   ├── 📄 card.tsx
+│   │   ├── 📄 dialog.tsx
+│   │   ├── 📄 dropdown-menu.tsx
+│   │   ├── 📄 form.tsx
+│   │   ├── 📄 input.tsx
+│   │   ├── 📄 label.tsx
+│   │   ├── 📄 navigation-menu.tsx
+│   │   ├── 📄 sheet.tsx
+│   │   └── 📄 table.tsx
 │   ├── 📄 Navbar.tsx
 │   └── 📄 ProtectedRoute.tsx
 ├── 📁 lib
 │   ├── 📄 api.ts
 │   ├── 📄 authStore.ts
-│   └── 📄 types.ts
+│   ├── 📄 types.ts
+│   └── 📄 utils.ts
 ├── 📁 public
 │   ├── 🖼️ file.svg
 │   ├── 🖼️ globe.svg
@@ -31,7 +45,9 @@
 │   ├── 🖼️ vercel.svg
 │   └── 🖼️ window.svg
 ├── ⚙️ .gitignore
+├── 📝 FileTree.md
 ├── 📝 README.md
+├── ⚙️ components.json
 ├── 📄 eslint.config.mjs
 ├── 📄 next.config.ts
 ├── ⚙️ package-lock.json

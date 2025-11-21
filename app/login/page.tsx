@@ -32,28 +32,35 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20">
-      <h1 className="text-2xl font-bold mb-4">Login</h1>
-      {error && <p className="text-red-500">{error}</p>}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 rounded"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 rounded"
-        />
-        <button className="bg-blue-600 text-white p-2 rounded">Login</button>
-      </form>
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="w-full max-w-md border rounded-lg p-6 bg-card">
+        <h1 className="text-xl font-semibold mb-4">Login</h1>
+  
+        {error && <p className="text-red-500 mb-2">{error}</p>}
+  
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            className="w-full border p-2 rounded"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            className="w-full border p-2 rounded"
+          />
+  
+          <button className="w-full bg-primary text-primary-foreground p-2 rounded">
+            Login
+          </button>
+        </form>
+      </div>
     </div>
-  );
+  );  
 };
 
 export default LoginPage;
