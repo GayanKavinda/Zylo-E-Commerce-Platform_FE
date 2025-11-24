@@ -1,6 +1,6 @@
 # File Tree: frontend
 
-**Generated:** 11/21/2025, 11:43:07 AM
+**Generated:** 11/21/2025, 4:49:23 PM
 **Root Path:** `c:\xampp\htdocs\New folder\frontend`
 
 ```
@@ -23,6 +23,7 @@
 │   │   ├── 📄 badge.tsx
 │   │   ├── 📄 button.tsx
 │   │   ├── 📄 card.tsx
+│   │   ├── 📄 dashboard-sidebar.tsx
 │   │   ├── 📄 dialog.tsx
 │   │   ├── 📄 dropdown-menu.tsx
 │   │   ├── 📄 form.tsx
@@ -30,9 +31,11 @@
 │   │   ├── 📄 label.tsx
 │   │   ├── 📄 navigation-menu.tsx
 │   │   ├── 📄 sheet.tsx
-│   │   └── 📄 table.tsx
+│   │   ├── 📄 table.tsx
+│   │   └── 📄 topbar.jsx
 │   ├── 📄 Navbar.tsx
-│   └── 📄 ProtectedRoute.tsx
+│   ├── 📄 ProtectedRoute.tsx
+│   └── 📄 Sidebar.jsx
 ├── 📁 lib
 │   ├── 📄 api.ts
 │   ├── 📄 authStore.ts

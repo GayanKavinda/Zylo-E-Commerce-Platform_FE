@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import api from "@/lib/api";
 import useAuthStore from "@/lib/authStore";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,15 +10,21 @@ import { ShoppingCart, Users, Package, Star } from "lucide-react";
 export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const setUser = useAuthStore((state) => state.setUser);
+  const token = useAuthStore((state) => state.token);
+  const loadUser = useAuthStore((state) => state.loadUser);
   const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     setMounted(true);
-    const loadUser = async () => {
+    const fetchUser = async () => {
+      // Only fetch user if we have a token
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const res = await api.get("/user");
-        setUser(res.data.user);
+        await loadUser();
       } catch {
         // Ignore errors - user remains null
       } finally {
@@ -27,8 +32,8 @@ export default function Home() {
       }
     };
 
-    loadUser();
-  }, [setUser]);
+    fetchUser();
+  }, [loadUser, token]);
 
   if (!mounted || loading) {
     return <p className="p-10 text-center">Loading...</p>;
