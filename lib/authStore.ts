@@ -41,6 +41,7 @@ const useAuthStore = create<AuthState>((set, get) => ({
             console.error('Auto-login failed', err);
             set({ user: null, token: null });
         }
+        console.log('[auth] loadUser start', token)
     },
 
     logout: () => {

@@ -1,3 +1,4 @@
+// app/dashboard/customer/page.tsx
 'use client';
 
 import { useEffect, useState } from "react";
@@ -19,45 +20,47 @@ const CustomerProductsPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const load = async () => {
       try {
         const res = await api.get("/products");
-        setProducts(res.data.products);
-        console.log("[CustomerProducts] Products:", res.data.products);
+        setProducts(res.data.products || []);
+        console.log("[CustomerProducts] Loaded:", res.data.products);
       } catch (err) {
         console.error("Error fetching products:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchProducts();
+    load();
   }, []);
 
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="space-y-6">
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {products.map((p) => (
-        <Card key={p.id}>
+        <Card key={p.id} className="shadow-sm">
           <CardHeader>
-            <CardTitle>{p.name}</CardTitle>
+            <CardTitle className="text-lg">{p.name}</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <div>
-              <p className="text-lg font-medium">${p.price}</p>
-              <Badge variant={p.stock > 0 ? "secondary" : "destructive"}>
-                {p.stock > 0 ? "In Stock" : "Out of Stock"}
-              </Badge>
-            </div>
-            <div className="flex gap-2">
+
+          <CardContent className="space-y-3">
+            <p className="text-xl font-semibold">${p.price}</p>
+
+            <Badge variant={p.stock > 0 ? "secondary" : "destructive"}>
+              {p.stock > 0 ? "In Stock" : "Out of Stock"}
+            </Badge>
+
+            <div className="flex gap-2 pt-2">
               <Button
                 size="sm"
                 variant="outline"
                 disabled={p.stock === 0}
                 onClick={() => alert(`Added ${p.name} to wishlist`)}
               >
-                Add to Wishlist
+                Wishlist
               </Button>
+
               <Button
                 size="sm"
                 disabled={p.stock === 0}
@@ -73,7 +76,7 @@ const CustomerProductsPage = () => {
   );
 };
 
-export default function ProtectedCustomerProducts() {
+export default function ProtectedCustomer() {
   return (
     <ProtectedRoute roles={["customer"]}>
       <CustomerProductsPage />

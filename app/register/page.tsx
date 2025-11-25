@@ -1,9 +1,7 @@
-//app/logon/page.tsx
 "use client";
 
 import { useState } from "react";
 import api from "@/lib/api";
-import useAuthStore from "@/lib/authStore";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -12,31 +10,32 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff } from "lucide-react";
 
-export default function LoginPage() {
+export default function RegisterPage() {
+  const router = useRouter();
+
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [role] = useState("customer"); // default register is customer
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
-  
-  const setUser = useAuthStore((s) => s.setUser);
-  const setToken = useAuthStore((s) => s.setToken);
-  const router = useRouter();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      const res = await api.post("/login", { email, password });
-      setUser(res.data.user);
-      setToken(res.data.token);
+      await api.post("/register", {
+        name,
+        email,
+        password,
+        role,
+      });
 
-      if (res.data.user.role === "admin") router.push("/admin");
-      else if (res.data.user.role === "seller") router.push("/seller");
-      else router.push("/dashboard/customer");
+      router.push("/login");
     } catch (err) {
       const e = err as AxiosError<{ message?: string }>;
-      setError(e.response?.data?.message || "Invalid credentials");
+      setError(e.response?.data?.message || "Registration failed");
     }
   };
 
@@ -44,8 +43,8 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-muted/30">
       <Card className="w-full max-w-md shadow-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-          <CardDescription>Log in to continue</CardDescription>
+          <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
+          <CardDescription>Sign up to continue</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -57,23 +56,28 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={submit} className="space-y-4">
-            <div>
-              <Input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+            <Input
+              placeholder="Full Name"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+
+            <Input
+              placeholder="Email"
+              required
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
 
             <div className="relative">
               <Input
                 type={showPass ? "text" : "password"}
                 placeholder="Password"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
               />
 
               <button
@@ -86,17 +90,15 @@ export default function LoginPage() {
             </div>
 
             <Button className="w-full" type="submit">
-              Login
+              Register
             </Button>
           </form>
         </CardContent>
 
         <CardFooter className="text-center text-sm">
           <p className="w-full">
-            Don’t have an account?{" "}
-            <a href="/register" className="text-primary underline">
-              Register
-            </a>
+            Already have an account?{" "}
+            <a href="/login" className="text-primary underline">Login</a>
           </p>
         </CardFooter>
       </Card>
