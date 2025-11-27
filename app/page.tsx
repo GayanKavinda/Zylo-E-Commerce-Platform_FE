@@ -8,36 +8,31 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Users, Package, Star } from "lucide-react";
+import { useUser } from "@/lib/hooks/useAuth";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
   const token = useAuthStore((state) => state.token);
-  const loadUser = useAuthStore((state) => state.loadUser);
-  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
+  
+  // ✅ Use TanStack Query for user data
+  const { data: user, isLoading } = useUser();
+
+  // Sync user to Zustand for navbar/sidebar
+  useEffect(() => {
+    if (user) {
+      setUser(user);
+    }
+  }, [user, setUser]);
 
   useEffect(() => {
     setMounted(true);
-    const fetchUser = async () => {
-      // Only fetch user if we have a token
-      if (!token) {
-        setLoading(false);
-        return;
-      }
+  }, []);
 
-      try {
-        await loadUser();
-      } catch {
-        // Ignore errors - user remains null
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Prevent hydration mismatch
+  if (!mounted) return null;
 
-    fetchUser();
-  }, [loadUser, token]);
-
-  if (!mounted || loading) {
+  if (isLoading) {
     return <p className="p-10 text-center">Loading...</p>;
   }
 
@@ -75,6 +70,27 @@ export default function Home() {
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        {/* Common Panel for All Users - Shop Products */}
+        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5 text-purple-600" />
+              Shop Products
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-3">
+              Browse our full catalog and add items to cart.
+            </p>
+            <Button asChild className="bg-purple-600 hover:bg-purple-700 w-full">
+              <Link href="/products">
+                <Package className="w-4 h-4 mr-2" />
+                Browse Products
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
 
         {/* Panel for Super Admin */}
         {(role === "super_admin") && (

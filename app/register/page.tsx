@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import api from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -9,30 +8,34 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff } from "lucide-react";
+import { useRegister } from "@/lib/hooks/useAuth";
 
 export default function RegisterPage() {
   const router = useRouter();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role] = useState("customer"); // default register is customer
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
+
+  // ✅ Use TanStack Query mutation for register
+  const registerMutation = useRegister();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      await api.post("/register", {
+      // ✅ Use TanStack Query mutation
+      await registerMutation.mutateAsync({
         name,
         email,
         password,
-        role,
       });
 
-      router.push("/login");
+      // Redirect to dashboard after successful registration
+      router.push("/dashboard");
     } catch (err) {
       const e = err as AxiosError<{ message?: string }>;
       setError(e.response?.data?.message || "Registration failed");
@@ -89,8 +92,8 @@ export default function RegisterPage() {
               </button>
             </div>
 
-            <Button className="w-full" type="submit">
-              Register
+            <Button className="w-full" type="submit" disabled={registerMutation.isPending}>
+              {registerMutation.isPending ? 'Registering...' : 'Register'}
             </Button>
           </form>
         </CardContent>

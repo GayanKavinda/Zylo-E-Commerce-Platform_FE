@@ -1,9 +1,11 @@
-//lib/authStore.ts
+// lib/authStore.ts
+// ✅ CLIENT STATE ONLY - UI state like token, theme, modals, etc.
+// ⚠️ For SERVER STATE (user data from API), use TanStack Query hooks in lib/hooks/useAuth.ts
 
 import { create } from "zustand";
-import api from "./api";
+import { persist } from "zustand/middleware";
 
-interface User {
+export interface User {
     id: number;
     name: string;
     email: string;
@@ -11,45 +13,42 @@ interface User {
 }
 
 interface AuthState {
-    user: User | null;
+    // 🔑 Client state: Auth token (persisted locally)
     token: string | null;
-    setUser: (user:User) => void;
-    setToken: (token: string) => void;
-    loadUser: () => Promise<void>;
+    
+    // 👤 Temporary user cache (sync with TanStack Query)
+    user: User | null;
+
+    // Actions
+    setUser: (user: User | null) => void;
+    setToken: (token: string | null) => void;
     logout: () => void;
 }
 
-const useAuthStore = create<AuthState>((set, get) => ({
-    user: null,
-    token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
+const useAuthStore = create<AuthState>()(
+    persist(
+        (set) => ({
+            user: null,
+            token: null,
 
-    setUser: (user) => set({ user }),
+            setUser: (user) => set({ user }),
 
-    setToken: (token) => {
-        if (typeof window !== 'undefined') localStorage.setItem('token', token);
-        set({ token });
-    },
+            setToken: (token) => {
+                set({ token });
+            },
 
-    loadUser: async () => {
-        const token = get().token;
-        if (!token) return;
-
-        try {
-            const res = await api.get('/user');
-            set({ user: res.data.user });
-        } catch (err) {
-            console.error('Auto-login failed', err);
-            set({ user: null, token: null });
+            logout: () => {
+                set({ user: null, token: null });
+                if (typeof window !== 'undefined') {
+                    window.location.href = '/login';
+                }
+            },
+        }),
+        {
+            name: 'auth-storage',
+            partialize: (state) => ({ token: state.token }), // Only persist token
         }
-        console.log('[auth] loadUser start', token)
-    },
-
-    logout: () => {
-        if (typeof window !== 'undefined') localStorage.removeItem('token');
-        set({ user: null, token: null });
-        window.location.href = '/login';
-    },
-}));
-
+    )
+);
 
 export default useAuthStore;
