@@ -2,162 +2,245 @@
 'use client';
 
 import { useState } from 'react';
-import { useProducts } from '@/lib/hooks/useProducts';
-import ProductCard from '@/components/ProductCard';
+import ProfessionalNavbar from '@/components/ProfessionalNavbar';
+import AdvancedFilters from '@/components/AdvancedFilters';
+import { useProducts, useCategories, useAddToCart } from '@/lib/hooks';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import useCartStore from '@/lib/cartStore';
-import { Search, Filter, ShoppingCart, Package } from 'lucide-react';
-import Link from 'next/link';
+import { ShoppingCart, Star, Search, Heart } from 'lucide-react';
+import { useAuth } from '@/lib/hooks';
+import { useRouter } from 'next/navigation';
 
 export default function ProductsPage() {
-  const { data: products = [], isLoading, error } = useProducts();
-  const { addItem, getTotalItems } = useCartStore();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [priceFilter, setPriceFilter] = useState<'all' | 'low' | 'mid' | 'high'>('all');
-
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    let matchesPrice = true;
-    
-    if (priceFilter === 'low') matchesPrice = product.price < 50;
-    else if (priceFilter === 'mid') matchesPrice = product.price >= 50 && product.price < 200;
-    else if (priceFilter === 'high') matchesPrice = product.price >= 200;
-    
-    return matchesSearch && matchesPrice;
+  const { data: authData } = useAuth();
+  const user = authData?.user;
+  const router = useRouter();
+  const [filters, setFilters] = useState({
+    search: '',
+    category: '',
+    sort_by: 'created_at' as const,
+    sort_order: 'desc' as const,
   });
 
-  const handleAddToCart = (product: any) => {
-    addItem(product);
-    // Optional: Show toast notification
-    alert(`${product.name} added to cart!`);
+  const { data: productsData, isLoading, error } = useProducts(filters);
+  const { data: categoriesData } = useCategories();
+  const addToCart = useAddToCart();
+
+  const products = productsData?.data || [];
+  const categories = categoriesData?.categories || [];
+
+  const handleAddToCart = (productId: number) => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    
+    addToCart.mutate(
+      { product_id: productId, quantity: 1 },
+      {
+        onSuccess: () => {
+          alert('Added to cart!');
+        },
+        onError: (error: any) => {
+          alert(error.response?.data?.message || 'Failed to add to cart');
+        },
+      }
+    );
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-          <p className="mt-4 text-gray-600">Loading products...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center p-8">
-        <p className="text-red-600">Error loading products. Please try again.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Product Catalog</h1>
-            <p className="text-gray-600">Browse our collection of amazing products</p>
-          </div>
-          
-          <Link href="/cart">
-            <Button className="bg-purple-600 hover:bg-purple-700 relative">
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              View Cart
-              {getTotalItems() > 0 && (
-                <Badge className="absolute -top-2 -right-2 bg-pink-500 hover:bg-pink-600 h-6 w-6 rounded-full p-0 flex items-center justify-center">
-                  {getTotalItems()}
-                </Badge>
-              )}
-            </Button>
-          </Link>
+    <div className="min-h-screen bg-gray-50">
+      <ProfessionalNavbar />
+      
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 mb-8 text-white">
+          <h1 className="text-4xl font-bold mb-2">Discover Amazing Products</h1>
+          <p className="text-white/90">Shop from thousands of quality products at great prices</p>
         </div>
 
-        {/* Filters */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex gap-2 flex-wrap">
-                <Button
-                  variant={priceFilter === 'all' ? 'default' : 'outline'}
-                  onClick={() => setPriceFilter('all')}
-                  size="sm"
-                  className={priceFilter === 'all' ? 'bg-purple-600 hover:bg-purple-700' : ''}
-                >
-                  All Prices
-                </Button>
-                <Button
-                  variant={priceFilter === 'low' ? 'default' : 'outline'}
-                  onClick={() => setPriceFilter('low')}
-                  size="sm"
-                  className={priceFilter === 'low' ? 'bg-purple-600 hover:bg-purple-700' : ''}
-                >
-                  Under $50
-                </Button>
-                <Button
-                  variant={priceFilter === 'mid' ? 'default' : 'outline'}
-                  onClick={() => setPriceFilter('mid')}
-                  size="sm"
-                  className={priceFilter === 'mid' ? 'bg-purple-600 hover:bg-purple-700' : ''}
-                >
-                  $50 - $200
-                </Button>
-                <Button
-                  variant={priceFilter === 'high' ? 'default' : 'outline'}
-                  onClick={() => setPriceFilter('high')}
-                  size="sm"
-                  className={priceFilter === 'high' ? 'bg-purple-600 hover:bg-purple-700' : ''}
-                >
-                  $200+
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Products Grid */}
-      {filteredProducts.length === 0 ? (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <Package className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-gray-500 text-lg mb-2">No products found</p>
-            <p className="text-gray-400 text-sm">Try adjusting your search or filters</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onBuy={handleAddToCart}
-              onAddToWishlist={(product) => alert(`Added ${product.name} to wishlist!`)}
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Input
+              placeholder="Search for products, brands, categories..."
+              value={filters.search}
+              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              className="pl-10 h-12 text-lg"
             />
-          ))}
+          </div>
         </div>
-      )}
 
-      {/* Product count */}
-      <div className="mt-8 text-center text-gray-600">
-        Showing {filteredProducts.length} of {products.length} products
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Filters Sidebar */}
+          <div className="lg:col-span-1">
+            <AdvancedFilters
+              filters={filters}
+              onFilterChange={setFilters}
+              categories={categories}
+            />
+          </div>
+
+          {/* Products Section */}
+          <div className="lg:col-span-3">
+            {/* Sort and View Options */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-gray-600">
+                {!isLoading && `Showing ${products.length} products`}
+              </div>
+              <select
+                value={filters.sort_by}
+                onChange={(e) => setFilters({ ...filters, sort_by: e.target.value as any })}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              >
+                <option value="created_at">Newest First</option>
+                <option value="price">Price: Low to High</option>
+                <option value="name">Name: A to Z</option>
+                <option value="popularity">Most Popular</option>
+                <option value="rating">Highest Rated</option>
+              </select>
+            </div>
+
+            {/* Loading State */}
+            {isLoading && (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading products...</p>
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <p className="text-red-600">Error loading products. Please try again.</p>
+              </div>
+            )}
+
+            {/* Products Grid */}
+            {!isLoading && !error && (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              {products.map((product) => (
+                <Card key={product.id} className="group hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                  {/* Product Image */}
+                  <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                    {product.images && product.images.length > 0 ? (
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ShoppingCart className="h-16 w-16 text-gray-300" />
+                      </div>
+                    )}
+                    
+                    {/* Discount Badge */}
+                    {product.discount_price && (
+                      <Badge className="absolute top-2 right-2 bg-red-500">
+                        SALE
+                      </Badge>
+                    )}
+
+                    {/* Wishlist Button */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-2 left-2 bg-white/80 backdrop-blur-sm hover:bg-white"
+                    >
+                      <Heart className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {/* Product Info */}
+                  <CardHeader className="pb-3">
+                    <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                      {product.name}
+                    </h3>
+                    {product.category && (
+                      <Badge variant="outline" className="w-fit text-xs mt-2">
+                        {product.category}
+                      </Badge>
+                    )}
+                  </CardHeader>
+
+                  <CardContent className="pb-3">
+                    {/* Price */}
+                    <div className="flex items-baseline space-x-2">
+                      <span className="text-2xl font-bold text-gray-900">
+                        ${product.discount_price || product.price}
+                      </span>
+                      {product.discount_price && (
+                        <span className="text-sm text-gray-500 line-through">
+                          ${product.price}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Rating */}
+                    {product.average_rating !== undefined && (
+                      <div className="flex items-center mt-2">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="ml-1 text-sm text-gray-600">
+                          {product.average_rating.toFixed(1)} ({product.reviews_count})
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Stock */}
+                    <p className="text-sm text-gray-500 mt-2">
+                      {product.stock > 0 ? (
+                        <span className="text-green-600">In Stock ({product.stock})</span>
+                      ) : (
+                        <span className="text-red-600">Out of Stock</span>
+                      )}
+                    </p>
+                  </CardContent>
+
+                  {/* Actions */}
+                  <CardFooter className="flex gap-2">
+                    <Button
+                      onClick={() => router.push(`/products/${product.id}`)}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      Details
+                    </Button>
+                    <Button
+                      onClick={() => handleAddToCart(product.id)}
+                      disabled={product.stock === 0 || addToCart.isPending}
+                      className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                    >
+                      <ShoppingCart className="h-4 w-4 mr-2" />
+                      Add
+                    </Button>
+                  </CardFooter>
+                </Card>
+                ))}
+                </div>
+
+                {/* Empty State */}
+                {products.length === 0 && (
+                  <div className="text-center py-12">
+                    <ShoppingCart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+                    <p className="text-gray-600">Try adjusting your filters or search terms</p>
+                    <Button 
+                      onClick={() => setFilters({ search: '', category: '', sort_by: 'created_at', sort_order: 'desc' })}
+                      className="mt-4"
+                    >
+                      Clear Filters
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

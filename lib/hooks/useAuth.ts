@@ -1,4 +1,5 @@
 // lib/hooks/useAuth.ts
+import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import useAuthStore from '@/lib/authStore';
@@ -90,4 +91,30 @@ export const useLogout = () => {
       logout();
     },
   });
+};
+
+// ✅ Composed auth helper for client components
+export const useAuth = () => {
+  const token = useAuthStore((state) => state.token);
+  const cachedUser = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
+  const logout = useAuthStore((state) => state.logout);
+  const { data, isLoading, error } = useUser();
+
+  const user = data ?? cachedUser;
+
+  useEffect(() => {
+    if (data && data !== cachedUser) {
+      setUser(data);
+    }
+  }, [data, cachedUser, setUser]);
+
+  return {
+    user,
+    token,
+    isAuthenticated: Boolean(token && user),
+    isLoading,
+    error,
+    logout,
+  };
 };

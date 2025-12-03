@@ -1,32 +1,96 @@
 // lib/hooks/useCart.ts
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
+import { Product } from './useProducts';
 
-interface CreateOrderData {
-  items: {
-    product_id: number;
-    quantity: number;
-    price: number;
-  }[];
-  total: number;
-  shipping_address: {
-    address: string;
-    city: string;
-    postal_code: string;
-    country: string;
-  };
+export interface CartItem {
+  id: number;
+  product: Product;
+  quantity: number;
+  subtotal: number;
 }
 
-export const useCreateOrder = () => {
+interface CartResponse {
+  cart_items: CartItem[];
+  total: number;
+  items_count: number;
+}
+
+interface AddToCartData {
+  product_id: number;
+  quantity: number;
+}
+
+interface UpdateCartData {
+  quantity: number;
+}
+
+// ✅ Fetch cart
+export const useCart = () => {
+  return useQuery<CartResponse>({
+    queryKey: ['cart'],
+    queryFn: async () => {
+      const { data } = await api.get<CartResponse>('/cart');
+      return data;
+    },
+  });
+};
+
+// ✅ Add to cart
+export const useAddToCart = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (orderData: CreateOrderData) => {
-      const { data } = await api.post('/orders', orderData);
+    mutationFn: async (cartData: AddToCartData) => {
+      const { data } = await api.post('/cart', cartData);
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    },
+  });
+};
+
+// ✅ Update cart item
+export const useUpdateCartItem = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, quantity }: { id: number; quantity: number }) => {
+      const { data } = await api.put(`/cart/${id}`, { quantity });
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    },
+  });
+};
+
+// ✅ Remove from cart
+export const useRemoveFromCart = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await api.delete(`/cart/${id}`);
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    },
+  });
+};
+
+// ✅ Clear cart
+export const useClearCart = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      await api.delete('/cart');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
   });
 };

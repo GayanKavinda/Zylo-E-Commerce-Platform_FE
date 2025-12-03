@@ -3,5 +3,9 @@
 
 export * from './useAuth';
 export * from './useProducts';
+export * from './useCart';
+export * from './useOrders';
+export * from './useReviews';
 export * from './useDashboard';
 export * from './useCheckout';
+export * from './useAdmin';
