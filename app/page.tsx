@@ -11,9 +11,7 @@ import { ShoppingCart, Users, Package, Star } from "lucide-react";
 import { useUser } from "@/lib/hooks/useAuth";
 
 export default function Home() {
-  const [mounted, setMounted] = useState(false);
-  const token = useAuthStore((state) => state.token);
-  const setUser = useAuthStore((state) => state.setUser);
+  const router = useRouter();
   
   // ✅ Use TanStack Query for user data
   const { data: user, isLoading } = useUser();
