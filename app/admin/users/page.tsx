@@ -25,23 +25,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useUsers, useCreateUser, useUpdateUser, useDeleteUser, useChangeUserRole, User } from "@/lib/hooks/useAdmin";
+import { useAdminUsers, useAdminCreateUser, useAdminUpdateUser, useAdminDeleteUser, useAdminChangeUserRole, AdminUser } from "@/lib/hooks/useAdmin";
 import { UserPlus, MoreVertical, Edit, Trash2, Shield } from "lucide-react";
 
 const UserManagementPage = () => {
-  const { data: users = [], isLoading, error } = useUsers();
+  const { data: users = [], isLoading, error } = useAdminUsers();
 
   // Debug logging
   console.log('Users data:', { users, isLoading, error });
-  const createUser = useCreateUser();
-  const updateUser = useUpdateUser();
-  const deleteUser = useDeleteUser();
-  const changeRole = useChangeUserRole();
+  const createUser = useAdminCreateUser();
+  const updateUser = useAdminUpdateUser();
+  const deleteUser = useAdminDeleteUser();
+  const changeRole = useAdminChangeUserRole();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -81,7 +81,7 @@ const UserManagementPage = () => {
     }
   };
 
-  const handleDelete = async (user: User) => {
+  const handleDelete = async (user: AdminUser) => {
     if (confirm(`Are you sure you want to delete "${user.name}"?`)) {
       try {
         await deleteUser.mutateAsync(user.id);
@@ -102,7 +102,7 @@ const UserManagementPage = () => {
     }
   };
 
-  const openEditDialog = (user: User) => {
+  const openEditDialog = (user: AdminUser) => {
     setSelectedUser(user);
     setFormData({
       name: user.name,
@@ -113,7 +113,7 @@ const UserManagementPage = () => {
     setIsEditDialogOpen(true);
   };
 
-  const openRoleDialog = (user: User) => {
+  const openRoleDialog = (user: AdminUser) => {
     setSelectedUser(user);
     setSelectedRole(user.role);
     setIsRoleDialogOpen(true);

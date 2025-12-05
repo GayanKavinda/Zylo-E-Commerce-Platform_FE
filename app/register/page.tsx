@@ -28,14 +28,20 @@ export default function RegisterPage() {
 
     try {
       // ✅ Use TanStack Query mutation
-      await registerMutation.mutateAsync({
+      const data = await registerMutation.mutateAsync({
         name,
         email,
         password,
       });
 
-      // Redirect to dashboard after successful registration
-      router.push("/dashboard");
+      // Redirect based on user role after successful registration
+      if (data.user.role === "superadmin" || data.user.role === "admin") {
+        router.push("/admin");
+      } else if (data.user.role === "seller") {
+        router.push("/seller/dashboard");
+      } else {
+        router.push("/dashboard/customer");
+      }
     } catch (err) {
       const e = err as AxiosError<{ message?: string }>;
       setError(e.response?.data?.message || "Registration failed");

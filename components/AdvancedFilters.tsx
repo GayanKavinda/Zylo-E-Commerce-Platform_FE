@@ -8,8 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { 
   ChevronDown, ChevronUp, X, Filter, DollarSign, 
-  Star, Package, Tag, Truck, Shield 
+  Star, Package, Tag
 } from 'lucide-react';
+import { PRICE_RANGES, RATING_OPTIONS } from '@/lib/constants';
 
 interface AdvancedFiltersProps {
   filters: any;
@@ -48,23 +49,8 @@ export default function AdvancedFilters({ filters, onFilterChange, categories }:
     k => k !== 'sort_by' && k !== 'sort_order' && filters[k]
   ).length;
 
-  const priceRanges = [
-    { label: 'Under $10', min: 0, max: 10 },
-    { label: '$10 - $25', min: 10, max: 25 },
-    { label: '$25 - $50', min: 25, max: 50 },
-    { label: '$50 - $100', min: 50, max: 100 },
-    { label: '$100 - $200', min: 100, max: 200 },
-    { label: '$200 - $500', min: 200, max: 500 },
-    { label: '$500+', min: 500, max: 999999 },
-  ];
-
-  const ratingOptions = [
-    { label: '5 Stars', value: 5 },
-    { label: '4 Stars & Up', value: 4 },
-    { label: '3 Stars & Up', value: 3 },
-    { label: '2 Stars & Up', value: 2 },
-    { label: 'Any Rating', value: 1 },
-  ];
+  const priceRanges = PRICE_RANGES;
+  const ratingOptions = RATING_OPTIONS;
 
   const stockOptions = [
     { label: 'In Stock', value: 'in_stock' },
@@ -255,14 +241,14 @@ export default function AdvancedFilters({ filters, onFilterChange, categories }:
   };
 
   return (
-    <Card className="sticky top-4">
-      <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50">
+    <Card className="sticky top-4 border-gray-200">
+      <CardHeader className="bg-gray-50">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center space-x-2">
-            <Filter className="h-5 w-5" />
+          <CardTitle className="flex items-center space-x-2 text-base">
+            <Filter className="h-4 w-4" />
             <span>Filters</span>
             {activeFiltersCount > 0 && (
-              <Badge className="bg-indigo-600">{activeFiltersCount}</Badge>
+              <Badge variant="default">{activeFiltersCount}</Badge>
             )}
           </CardTitle>
           {activeFiltersCount > 0 && (
@@ -270,7 +256,7 @@ export default function AdvancedFilters({ filters, onFilterChange, categories }:
               variant="ghost"
               size="sm"
               onClick={clearAllFilters}
-              className="text-xs"
+              className="text-xs h-7"
             >
               Clear All
             </Button>

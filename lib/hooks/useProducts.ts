@@ -62,22 +62,35 @@ interface ProductFilters {
 
 // ✅ Fetch all products with filters
 export const useProducts = (filters?: ProductFilters) => {
-  return useQuery<Product[]>({
+  return useQuery<PaginatedProductsResponse>({
     queryKey: ['products', filters],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      
-      if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            params.append(key, String(value));
-          }
-        });
+      try {
+        const params = new URLSearchParams();
+        
+        if (filters) {
+          Object.entries(filters).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+              params.append(key, String(value));
+            }
+          });
+        }
+        
+        const queryString = params.toString();
+        const url = queryString ? `/products?${queryString}` : '/products';
+        
+        console.log('Fetching products from:', url);
+        const { data } = await api.get<PaginatedProductsResponse>(url);
+        console.log('Raw API Response:', data);
+        console.log('Products in response:', data.data?.length || 0);
+        return data;
+      } catch (error) {
+        console.error('Products fetch error:', error);
+        throw error;
       }
-      
-      const { data } = await api.get<PaginatedProductsResponse>(`/products?${params.toString()}`);
-      return data.data || [];
     },
+    retry: 1,
+    staleTime: 30000,
   });
 };
 
@@ -127,11 +140,12 @@ export const useFeaturedProducts = () => {
 
 // ✅ Fetch product categories
 export const useCategories = () => {
-  return useQuery<string[]>({
+  return useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
       const { data } = await api.get('/products/categories');
-      return data.categories || [];
+      console.log('Categories Response:', data);
+      return { categories: data.categories || [] };
     },
   });
 };

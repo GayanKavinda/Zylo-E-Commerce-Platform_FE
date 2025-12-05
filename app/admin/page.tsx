@@ -4,15 +4,18 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useDashboardStats } from "@/lib/hooks/useDashboard";
-import { useUsers } from "@/lib/hooks/useAdmin";
+import { useAdminUsers } from "@/lib/hooks/useAdmin";
 import { useProducts } from "@/lib/hooks/useProducts";
 import { Users, Package, ShoppingCart, TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const AdminDashboardPage = () => {
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
-  const { data: users = [], isLoading: usersLoading, error: usersError } = useUsers();
-  const { data: products = [], isLoading: productsLoading } = useProducts();
+  const { data: users = [], isLoading: usersLoading, error: usersError } = useAdminUsers();
+  const { data: productsResponse, isLoading: productsLoading } = useProducts();
+  
+  // Extract products array from paginated response
+  const products = productsResponse?.data || [];
 
   const statCards = [
     {
@@ -27,7 +30,7 @@ const AdminDashboardPage = () => {
     },
     {
       title: "Total Products",
-      value: products.length,
+      value: productsResponse?.total || products.length,
       icon: Package,
       description: "+8% from last month",
       trend: "up",

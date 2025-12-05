@@ -1,16 +1,28 @@
 // app/dashboard/layout.tsx
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import useAuthStore from "@/lib/authStore";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
+  const [mounted, setMounted] = useState(false);
 
-  if (!user) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return null; // Don't show loading spinner, just render nothing briefly
+  }
+
+  // If no user/token after mount, the ProtectedRoute will handle redirect
+  if (!user && !token) {
+    return null;
   }
 
   return (

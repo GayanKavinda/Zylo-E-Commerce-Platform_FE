@@ -32,7 +32,7 @@ export default function LoginPage() {
       if (data.user.role === "superadmin" || data.user.role === "admin") {
         router.push("/admin");
       } else if (data.user.role === "seller") {
-        router.push("/dashboard");
+        router.push("/seller/dashboard");
       } else {
         router.push("/dashboard/customer");
       }

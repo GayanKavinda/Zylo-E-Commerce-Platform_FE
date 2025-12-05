@@ -2,20 +2,21 @@
 'use client';
 
 import { useState } from 'react';
-import ProfessionalNavbar from '@/components/ProfessionalNavbar';
+import Navbar from '@/components/layout/Navbar';
 import AdvancedFilters from '@/components/AdvancedFilters';
-import { useProducts, useCategories, useAddToCart } from '@/lib/hooks';
+import { useProducts, useCategories, useAddToCart, useAuth } from '@/lib/hooks';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Star, Search, Heart } from 'lucide-react';
-import { useAuth } from '@/lib/hooks';
+import { ShoppingCart, Star, Heart, TrendingUp, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { ROUTES } from '@/lib/constants';
+import Link from 'next/link';
 
 export default function ProductsPage() {
-  const { data: authData } = useAuth();
-  const user = authData?.user;
+  const authState = useAuth();
+  const user = authState.user;
   const router = useRouter();
   const [filters, setFilters] = useState({
     search: '',
@@ -28,8 +29,17 @@ export default function ProductsPage() {
   const { data: categoriesData } = useCategories();
   const addToCart = useAddToCart();
 
-  const products = productsData?.data || [];
-  const categories = categoriesData?.categories || [];
+  // Debug logging
+  console.log('Products Data:', productsData);
+  console.log('Loading:', isLoading);
+  console.log('Error:', error);
+  console.log('Categories Data:', categoriesData);
+
+  const products = Array.isArray(productsData?.data) ? productsData.data : [];
+  const categories = Array.isArray(categoriesData?.categories) ? categoriesData.categories : [];
+  
+  console.log('Processed products array:', products);
+  console.log('Products length:', products.length);
 
   const handleAddToCart = (productId: number) => {
     if (!user) {
@@ -52,13 +62,15 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ProfessionalNavbar />
+      <Navbar />
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 mb-8 text-white">
-          <h1 className="text-4xl font-bold mb-2">Discover Amazing Products</h1>
-          <p className="text-white/90">Shop from thousands of quality products at great prices</p>
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-heading-1 mb-2">Discover Products</h1>
+          <p className="text-gray-600">
+            Explore thousands of products from trusted sellers
+          </p>
         </div>
 
         {/* Search Bar */}
@@ -88,13 +100,18 @@ export default function ProductsPage() {
           <div className="lg:col-span-3">
             {/* Sort and View Options */}
             <div className="flex items-center justify-between mb-6">
-              <div className="text-gray-600">
-                {!isLoading && `Showing ${products.length} products`}
+              <div className="text-sm text-gray-600">
+                {!isLoading && (
+                  <span className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4" />
+                    Showing <strong>{products.length}</strong> products
+                  </span>
+                )}
               </div>
               <select
                 value={filters.sort_by}
                 onChange={(e) => setFilters({ ...filters, sort_by: e.target.value as any })}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-base"
               >
                 <option value="created_at">Newest First</option>
                 <option value="price">Price: Low to High</option>
@@ -106,18 +123,21 @@ export default function ProductsPage() {
 
             {/* Loading State */}
             {isLoading && (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Loading products...</p>
+              <div className="text-center py-16">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600 text-sm">Loading products...</p>
               </div>
             )}
 
             {/* Error State */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-                <p className="text-red-600">Error loading products. Please try again.</p>
-              </div>
+              <Card className="border-red-200 bg-red-50">
+                <CardContent className="p-6 text-center">
+                  <p className="text-red-600">Error loading products. Please try again.</p>
+                </CardContent>
+              </Card>
             )}
+
 
             {/* Products Grid */}
             {!isLoading && !error && (
@@ -213,7 +233,7 @@ export default function ProductsPage() {
                     <Button
                       onClick={() => handleAddToCart(product.id)}
                       disabled={product.stock === 0 || addToCart.isPending}
-                      className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                      className="flex-1 btn-primary"
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
                       Add

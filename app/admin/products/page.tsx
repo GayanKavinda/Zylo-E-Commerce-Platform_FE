@@ -39,9 +39,12 @@ interface Product {
 }
 
 const ProductManagementPage = () => {
-  const { data: products = [], isLoading, error } = useProducts();
+  const { data: productsResponse, isLoading, error } = useProducts();
   const deleteProduct = useDeleteProduct();
   const queryClient = useQueryClient();
+  
+  // Extract products array from paginated response
+  const products = productsResponse?.data || [];
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);

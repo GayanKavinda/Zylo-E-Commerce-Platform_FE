@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import ProfessionalNavbar from '@/components/ProfessionalNavbar';
+import Navbar from '@/components/layout/Navbar';
 import { useCart, useRemoveFromCart, useUpdateCartItem } from '@/lib/hooks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,7 @@ export default function CartPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <ProfessionalNavbar />
+        <Navbar />
         <div className="container mx-auto px-4 py-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading cart...</p>
@@ -43,7 +43,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ProfessionalNavbar />
+      <Navbar />
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
@@ -54,7 +54,7 @@ export default function CartPage() {
               <ShoppingCart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Your cart is empty</h3>
               <p className="text-gray-600 mb-6">Add some products to get started!</p>
-              <Button onClick={() => router.push('/products')} className="bg-gradient-to-r from-indigo-600 to-purple-600">
+              <Button onClick={() => router.push('/products')} className="btn-primary">
                 Start Shopping
               </Button>
             </CardContent>
@@ -160,7 +160,7 @@ export default function CartPage() {
                   </div>
                   <Button
                     onClick={handleCheckout}
-                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-lg py-6"
+                    className="w-full btn-primary text-lg py-6"
                   >
                     Proceed to Checkout
                   </Button>

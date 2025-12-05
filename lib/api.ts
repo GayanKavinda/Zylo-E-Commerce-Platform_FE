@@ -4,7 +4,8 @@ import axios from "axios";
 import useAuthStore from './authStore';
 
 const api = axios.create({
-    baseURL: "http://127.0.0.1:8000/api",
+    baseURL: "http://localhost:8000/api",
+    timeout: 10000, // 10 second timeout
 });
 
 api.interceptors.request.use((config) => {
@@ -13,5 +14,24 @@ api.interceptors.request.use((config) => {
             config.headers['Authorization'] = `Bearer ${token}`;
         return config;
 });
+
+// Response interceptor with better error handling
+api.interceptors.response.use(
+    (response) => {
+        console.log('✅ API Response:', response.config.url, response.status);
+        return response;
+    },
+    (error) => {
+        console.error('❌ API Error:', error.config?.url, error.response?.status, error.response?.data || error.message);
+        
+        // Handle 401 Unauthorized - token expired or invalid
+        if (error.response?.status === 401) {
+            console.warn('🔒 Unauthorized - clearing auth and redirecting to login');
+            useAuthStore.getState().logout();
+        }
+        
+        return Promise.reject(error);
+    }
+);
 
 export default api;

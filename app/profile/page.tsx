@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import ProfessionalNavbar from '@/components/ProfessionalNavbar';
+import Navbar from '@/components/layout/Navbar';
 import { useAuth, useOrders } from '@/lib/hooks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,8 @@ import {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { data: authData } = useAuth();
+  const authState = useAuth();
+  const authData = { user: authState.user };
   const user = authData?.user;
   const { data: ordersData } = useOrders();
   const [isEditing, setIsEditing] = useState(false);
@@ -63,11 +64,11 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ProfessionalNavbar />
+      <Navbar />
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 mb-8 text-white">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 mb-8 text-white">
           <div className="flex items-center space-x-6">
             <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
               <User className="h-16 w-16" />

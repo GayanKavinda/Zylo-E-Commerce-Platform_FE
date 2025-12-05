@@ -5,24 +5,30 @@ import { useRouter } from "next/navigation";
 import useAuthStore from "@/lib/authStore";
 
 export default function Sidebar() {
+  const [mounted, setMounted] = React.useState(false);
   const user = useAuthStore((state) => state.user);
   const router = useRouter();
 
-  if (!user) return null;
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  console.log("[Sidebar] Current user:, user");
+  // Prevent hydration mismatch
+  if (!mounted || !user) return null;
+
+  console.log("[Sidebar] Current user:", user);
 
   const navItems = [
     {
       label: "Dashboard",
       path: "/dashboard",
-      roles: ["superadmin", "admin", "seller", "customer"],
+      roles: ["superadmin", "admin", "customer"],
     },
-    { label: "Admin Products", path: "/admin", roles: ["superadmin", "admin"] },
+    { label: "Admin Panel", path: "/admin", roles: ["superadmin", "admin"] },
     {
-      label: "Customer Module",
+      label: "Customer Dashboard",
       path: "/dashboard/customer",
-      roles: ["customer", "seller", "superadmin"],
+      roles: ["customer"],
     },
   ];
 

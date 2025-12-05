@@ -33,6 +33,8 @@ export const useCart = () => {
       const { data } = await api.get<CartResponse>('/cart');
       return data;
     },
+    enabled: typeof window !== 'undefined' && !!localStorage.getItem('token'),
+    retry: false,
   });
 };
 

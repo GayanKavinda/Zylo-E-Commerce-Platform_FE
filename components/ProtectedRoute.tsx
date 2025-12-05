@@ -44,12 +44,22 @@ const ProtectedRoute = ({ children, roles }: Props) => {
   }, [token, user, error, router, setUser]);
 
   // While checking auth or loading user
-  if (checking || isLoading || !user) return <p>Loading...</p>;
+  if (checking || isLoading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
-  // Role protection
+  // Role protection - don't redirect during render
   if (roles && !roles.includes(user.role)) {
-    router.replace('/dashboard');
-    return <p>Redirecting...</p>;
+    setTimeout(() => router.replace('/dashboard'), 0);
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Access denied. Redirecting...</p>
+      </div>
+    );
   }
 
   return <>{children}</>;

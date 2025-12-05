@@ -2,7 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../api';
 
-export interface User {
+export interface AdminUser {
   id: number;
   name: string;
   email: string;
@@ -26,8 +26,8 @@ export interface UpdateUserData {
 }
 
 // Get all users
-export const useUsers = () => {
-  return useQuery<User[]>({
+export const useAdminUsers = () => {
+  return useQuery<AdminUser[]>({
     queryKey: ['admin', 'users'],
     queryFn: async () => {
       const { data } = await api.get('/admin/users');
@@ -37,8 +37,8 @@ export const useUsers = () => {
 };
 
 // Get single user
-export const useUser = (id: number) => {
-  return useQuery<User>({
+export const useAdminUser = (id: number) => {
+  return useQuery<AdminUser>({
     queryKey: ['admin', 'users', id],
     queryFn: async () => {
       const { data } = await api.get(`/admin/users/${id}`);
@@ -49,7 +49,7 @@ export const useUser = (id: number) => {
 };
 
 // Create user
-export const useCreateUser = () => {
+export const useAdminCreateUser = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
@@ -64,7 +64,7 @@ export const useCreateUser = () => {
 };
 
 // Update user
-export const useUpdateUser = () => {
+export const useAdminUpdateUser = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
@@ -79,7 +79,7 @@ export const useUpdateUser = () => {
 };
 
 // Delete user
-export const useDeleteUser = () => {
+export const useAdminDeleteUser = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
@@ -94,7 +94,7 @@ export const useDeleteUser = () => {
 };
 
 // Change user role
-export const useChangeUserRole = () => {
+export const useAdminChangeUserRole = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
@@ -109,7 +109,7 @@ export const useChangeUserRole = () => {
 };
 
 // Get available roles
-export const useRoles = () => {
+export const useAdminRoles = () => {
   return useQuery<Record<string, string>>({
     queryKey: ['admin', 'roles'],
     queryFn: async () => {

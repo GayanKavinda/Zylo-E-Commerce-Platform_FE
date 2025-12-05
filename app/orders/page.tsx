@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import ProfessionalNavbar from '@/components/ProfessionalNavbar';
+import Navbar from '@/components/layout/Navbar';
 import { useOrders, useCancelOrder } from '@/lib/hooks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -94,7 +94,7 @@ export default function OrdersPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <ProfessionalNavbar />
+        <Navbar />
         <div className="container mx-auto px-4 py-16 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading your orders...</p>
@@ -106,7 +106,7 @@ export default function OrdersPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <ProfessionalNavbar />
+        <Navbar />
         <div className="container mx-auto px-4 py-16">
           <Card className="border-red-200 bg-red-50">
             <CardContent className="p-8 text-center">
@@ -124,7 +124,7 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ProfessionalNavbar />
+      <Navbar />
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
@@ -133,7 +133,7 @@ export default function OrdersPage() {
             <p className="text-gray-600 mt-1">Track and manage your orders</p>
           </div>
           <Link href="/products">
-            <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+            <Button className="btn-primary">
               Continue Shopping
             </Button>
           </Link>
@@ -146,7 +146,7 @@ export default function OrdersPage() {
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No orders yet</h3>
               <p className="text-gray-600 mb-6">Start shopping to place your first order!</p>
               <Link href="/products">
-                <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+                <Button className="btn-primary">
                   Browse Products
                 </Button>
               </Link>

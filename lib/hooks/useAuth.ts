@@ -36,6 +36,9 @@ export const useUser = () => {
       return data.user;
     },
     enabled: !!token, // Only fetch if token exists
+    staleTime: 1000 * 60 * 10, // 10 minutes - keep user data fresh
+    gcTime: 1000 * 60 * 30, // 30 minutes cache
+    retry: 2,
   });
 };
 
@@ -99,8 +102,9 @@ export const useAuth = () => {
   const cachedUser = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
   const logout = useAuthStore((state) => state.logout);
-  const { data, isLoading, error } = useUser();
+  const { data, isLoading, error, isFetching } = useUser();
 
+  // Prefer server data over cached data, but use cached while loading
   const user = data ?? cachedUser;
 
   useEffect(() => {
@@ -109,11 +113,22 @@ export const useAuth = () => {
     }
   }, [data, cachedUser, setUser]);
 
+  // Log auth state for debugging
+  useEffect(() => {
+    console.log('🔐 Auth State:', {
+      hasToken: !!token,
+      hasUser: !!user,
+      userRole: user?.role,
+      isLoading,
+      isFetching,
+    });
+  }, [token, user, isLoading, isFetching]);
+
   return {
     user,
     token,
     isAuthenticated: Boolean(token && user),
-    isLoading,
+    isLoading: isLoading && !cachedUser, // Only show loading if no cached data
     error,
     logout,
   };

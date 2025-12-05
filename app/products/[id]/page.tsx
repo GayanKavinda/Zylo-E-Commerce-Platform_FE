@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import ProfessionalNavbar from '@/components/ProfessionalNavbar';
+import Navbar from '@/components/layout/Navbar';
 import { useProduct, useAuth, useAddToCart } from '@/lib/hooks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,8 +18,8 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const productId = parseInt(params.id as string);
-  const { data: authData } = useAuth();
-  const user = authData?.user;
+  const authState = useAuth();
+  const user = authState.user;
   const { data: product, isLoading, error } = useProduct(productId);
   const addToCart = useAddToCart();
   const [quantity, setQuantity] = useState(1);
@@ -67,7 +67,7 @@ export default function ProductDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <ProfessionalNavbar />
+        <Navbar />
         <div className="container mx-auto px-4 py-16 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading product...</p>
@@ -79,12 +79,12 @@ export default function ProductDetailPage() {
   if (error || !product) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <ProfessionalNavbar />
+        <Navbar />
         <div className="container mx-auto px-4 py-16 text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Product Not Found</h2>
           <p className="text-gray-600 mb-6">The product you're looking for doesn't exist.</p>
           <Link href="/products">
-            <Button className="bg-gradient-to-r from-indigo-600 to-purple-600">
+            <Button className="btn-primary">
               Browse Products
             </Button>
           </Link>
@@ -104,7 +104,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ProfessionalNavbar />
+      <Navbar />
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link href="/products">
@@ -269,7 +269,7 @@ export default function ProductDetailPage() {
               <Button
                 onClick={handleBuyNow}
                 disabled={product.stock === 0 || addToCart.isPending}
-                className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-lg"
+                className="w-full h-12 btn-primary text-lg"
               >
                 Buy Now
               </Button>

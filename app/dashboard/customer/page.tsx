@@ -10,8 +10,10 @@ import { useCreateCheckoutSession } from "@/lib/hooks/useCheckout";
 
 const CustomerProductsPage = () => {
   // ✅ Using TanStack Query for server state
-  const { data: products = [], isLoading, error } = useProducts();
+  const { data: productsData, isLoading, error } = useProducts();
   const createCheckoutSession = useCreateCheckoutSession();
+
+  const products = productsData?.data || [];
 
   const handleBuyNow = async (productId: number, productName: string) => {
     try {

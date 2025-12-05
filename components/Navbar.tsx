@@ -12,12 +12,19 @@ import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Home, Package, LayoutDashboard, LogOut } from 'lucide-react';
 
 export default function Navbar() {
+  const [mounted, setMounted] = React.useState(false);
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const getTotalItems = useCartStore((state) => state.getTotalItems);
   const router = useRouter();
 
-  if (!user) return null;
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Avoid hydration mismatch: render nothing on server and until mounted,
+  // then safely read persisted auth/cart state.
+  if (!mounted || !user) return null;
 
   console.log('[Navbar] Current user:', user);
 
