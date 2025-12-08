@@ -35,10 +35,16 @@ export const useUser = () => {
       const { data } = await api.get<{ user: User }>('/user');
       return data.user;
     },
-    enabled: !!token, // Only fetch if token exists
+    enabled: !!token && typeof window !== 'undefined', // Only fetch if token exists and we're on client
     staleTime: 1000 * 60 * 10, // 10 minutes - keep user data fresh
     gcTime: 1000 * 60 * 30, // 30 minutes cache
-    retry: 2,
+    retry: (failureCount, error: any) => {
+      // Don't retry on 401 errors (unauthorized)
+      if (error?.response?.status === 401) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 };
 
@@ -87,10 +93,25 @@ export const useLogout = () => {
 
   return useMutation({
     mutationFn: async () => {
-      await api.post('/logout');
+      try {
+        await api.post('/logout');
+      } catch (error) {
+        // Even if logout API call fails, we should still clear local state
+        console.warn('Logout API call failed, but clearing local state anyway:', error);
+      }
     },
     onSuccess: () => {
-      queryClient.clear(); // Clear all cached data
+      // Clear all cached data first
+      queryClient.clear();
+      // Remove all queries from cache
+      queryClient.removeQueries();
+      // Then logout (which clears the store and persisted storage)
+      logout();
+    },
+    onError: () => {
+      // Even on error, clear everything locally
+      queryClient.clear();
+      queryClient.removeQueries();
       logout();
     },
   });
@@ -105,13 +126,27 @@ export const useAuth = () => {
   const { data, isLoading, error, isFetching } = useUser();
 
   // Prefer server data over cached data, but use cached while loading
-  const user = data ?? cachedUser;
+  // Only use cached user if we have a token (otherwise it's stale from logout)
+  const user = token ? (data ?? cachedUser) : null;
 
   useEffect(() => {
-    if (data && data !== cachedUser) {
+    // Only sync user data if we have a token
+    if (token && data && data !== cachedUser) {
       setUser(data);
+    } else if (!token) {
+      // Clear user from store if no token
+      setUser(null);
     }
-  }, [data, cachedUser, setUser]);
+  }, [data, cachedUser, setUser, token]);
+
+  // Handle 401 errors - clear auth state
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 401) {
+      console.warn('🔒 Unauthorized - clearing auth state');
+      setUser(null);
+      logout();
+    }
+  }, [error, setUser, logout]);
 
   // Log auth state for debugging
   useEffect(() => {

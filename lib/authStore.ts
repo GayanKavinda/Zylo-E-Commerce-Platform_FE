@@ -39,8 +39,10 @@ const useAuthStore = create<AuthState>()(
 
             logout: () => {
                 set({ user: null, token: null });
+                // Clear persisted storage explicitly
                 if (typeof window !== 'undefined') {
-                    window.location.href = '/login';
+                    localStorage.removeItem('auth-storage');
+                    // Don't redirect here - let the component handle navigation
                 }
             },
         }),

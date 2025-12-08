@@ -1,6 +1,7 @@
 // lib/hooks/useCart.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
+import useAuthStore from '@/lib/authStore';
 import { Product } from './useProducts';
 
 export interface CartItem {
@@ -27,13 +28,15 @@ interface UpdateCartData {
 
 // ✅ Fetch cart
 export const useCart = () => {
+  const token = useAuthStore((state) => state.token);
+  
   return useQuery<CartResponse>({
     queryKey: ['cart'],
     queryFn: async () => {
       const { data } = await api.get<CartResponse>('/cart');
       return data;
     },
-    enabled: typeof window !== 'undefined' && !!localStorage.getItem('token'),
+    enabled: typeof window !== 'undefined' && !!token,
     retry: false,
   });
 };

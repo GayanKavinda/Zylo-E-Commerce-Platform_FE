@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
-import { useProduct, useAuth, useAddToCart } from '@/lib/hooks';
+import { useProduct, useAddToCart } from '@/lib/hooks';
+import useAuthStore from '@/lib/authStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,8 +19,8 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const productId = parseInt(params.id as string);
-  const authState = useAuth();
-  const user = authState.user;
+  // Use Zustand store directly to avoid triggering automatic user fetch
+  const user = useAuthStore((state) => state.user);
   const { data: product, isLoading, error } = useProduct(productId);
   const addToCart = useAddToCart();
   const [quantity, setQuantity] = useState(1);

@@ -227,7 +227,11 @@ export default function SellerAnalyticsPage() {
                     {analytics.revenue_timeline.map((item, index) => (
                       <tr key={index} className="hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm text-gray-900">
-                          {new Date(item.date).toLocaleDateString()}
+                          {new Date(item.date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-900 text-right">
                           {item.orders}

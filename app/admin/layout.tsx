@@ -18,6 +18,7 @@ import {
   Search
 } from 'lucide-react';
 import useAuthStore from '@/lib/authStore';
+import { useLogout } from '@/lib/hooks';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
@@ -35,11 +36,17 @@ const navigation = [
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
+  const logoutMutation = useLogout();
 
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      router.push('/login');
+    } catch (error) {
+      // Even if logout fails, redirect to login
+      router.push('/login');
+    }
   };
 
   const getInitials = (name: string) => {

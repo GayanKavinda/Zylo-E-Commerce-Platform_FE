@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '@/lib/hooks';
+import useAuthStore from '@/lib/authStore';
+import { useLogout } from '@/lib/hooks';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -40,9 +41,10 @@ import { useCart } from '@/lib/hooks';
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const authState = useAuth();
-  const authData = { user: authState.user };
-  const user = authData?.user;
+  // Use Zustand store directly to avoid triggering automatic user fetch
+  const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
+  const logoutMutation = useLogout();
   const { data: cartData } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -56,16 +58,12 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:8000/api/logout', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      localStorage.removeItem('token');
+      await logoutMutation.mutateAsync();
       router.push(ROUTES.LOGIN);
     } catch (error) {
       console.error('Logout failed:', error);
+      // Even if logout fails, redirect to login
+      router.push(ROUTES.LOGIN);
     }
   };
 

@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import AdvancedFilters from '@/components/AdvancedFilters';
-import { useProducts, useCategories, useAddToCart, useAuth } from '@/lib/hooks';
+import { useProducts, useCategories, useAddToCart } from '@/lib/hooks';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,11 +13,13 @@ import { ShoppingCart, Star, Heart, TrendingUp, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants';
 import Link from 'next/link';
+import useAuthStore from '@/lib/authStore';
 
 export default function ProductsPage() {
-  const authState = useAuth();
-  const user = authState.user;
   const router = useRouter();
+  // Don't automatically fetch user data - just check if token exists
+  const token = useAuthStore((state) => state.token);
+  const user = useAuthStore((state) => state.user);
   const [filters, setFilters] = useState({
     search: '',
     category: '',

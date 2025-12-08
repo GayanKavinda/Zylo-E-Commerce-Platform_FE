@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import useAuthStore from '@/lib/authStore';
-import { useCart } from '@/lib/hooks';
-import { useRouter } from 'next/navigation';
+import { useCart, useLogout } from '@/lib/hooks';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,17 +40,24 @@ import {
 import { cn } from '@/lib/utils';
 
 export default function ProfessionalNavbar() {
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const { data: cart } = useCart();
   const router = useRouter();
+  const pathname = usePathname();
+  const logoutMutation = useLogout();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   if (!user) return null;
 
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      router.push('/login');
+    } catch {
+      // Even if logout fails, redirect to login
+      router.push('/login');
+    }
   };
 
   const getInitials = (name: string) => {
@@ -218,7 +225,7 @@ export default function ProfessionalNavbar() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="hidden md:flex items-center space-x-1 h-14">
             {navigation.map((item) => {
-              const isActive = typeof window !== 'undefined' && window.location.pathname === item.href;
+              const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.name}
@@ -257,7 +264,7 @@ export default function ProfessionalNavbar() {
         <div className="md:hidden bg-white border-b border-gray-200 shadow-lg">
           <nav className="container mx-auto px-4 py-4 space-y-1">
             {navigation.map((item) => {
-              const isActive = typeof window !== 'undefined' && window.location.pathname === item.href;
+              const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.name}

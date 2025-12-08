@@ -259,7 +259,11 @@ export default function SellerOrdersPage() {
                       <div>
                         <CardTitle className="text-base font-semibold text-gray-900">{order.order_number}</CardTitle>
                         <p className="text-sm text-gray-600 mt-1">
-                          {order.customer.name} • {new Date(order.created_at).toLocaleDateString()}
+                          {order.customer.name} • {new Date(order.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
                         </p>
                       </div>
                     </div>
