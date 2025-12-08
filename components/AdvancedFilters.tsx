@@ -241,89 +241,93 @@ export default function AdvancedFilters({ filters, onFilterChange, categories }:
   };
 
   return (
-    <Card className="sticky top-4 border-gray-200">
-      <CardHeader className="bg-gray-50">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center space-x-2 text-base">
-            <Filter className="h-4 w-4" />
-            <span>Filters</span>
+    <div className="sticky top-4 h-[calc(100vh-6rem)] flex flex-col">
+      <Card className="border-gray-200 flex flex-col h-full overflow-hidden">
+        <CardHeader className="bg-gray-50 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center space-x-2 text-base">
+              <Filter className="h-4 w-4" />
+              <span>Filters</span>
+              {activeFiltersCount > 0 && (
+                <Badge variant="default">{activeFiltersCount}</Badge>
+              )}
+            </CardTitle>
             {activeFiltersCount > 0 && (
-              <Badge variant="default">{activeFiltersCount}</Badge>
-            )}
-          </CardTitle>
-          {activeFiltersCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearAllFilters}
-              className="text-xs h-7"
-            >
-              Clear All
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="p-0">
-        <FilterSection title="Price Range" icon={DollarSign} section="price" />
-        <FilterSection title="Category" icon={Package} section="category" />
-        <FilterSection title="Customer Rating" icon={Star} section="rating" />
-        <FilterSection title="Availability" icon={Package} section="stock" />
-        <FilterSection title="Discounts & Deals" icon={Tag} section="discount" />
-      </CardContent>
-
-      {/* Active Filters */}
-      {activeFiltersCount > 0 && (
-        <div className="p-4 border-t bg-gray-50">
-          <p className="text-xs font-medium text-gray-700 mb-2">Active Filters:</p>
-          <div className="flex flex-wrap gap-2">
-            {filters.min_price && (
-              <Badge variant="outline" className="text-xs">
-                Min: ${filters.min_price}
-                <X
-                  className="h-3 w-3 ml-1 cursor-pointer"
-                  onClick={() => clearFilter('min_price')}
-                />
-              </Badge>
-            )}
-            {filters.max_price && (
-              <Badge variant="outline" className="text-xs">
-                Max: ${filters.max_price}
-                <X
-                  className="h-3 w-3 ml-1 cursor-pointer"
-                  onClick={() => clearFilter('max_price')}
-                />
-              </Badge>
-            )}
-            {filters.category && (
-              <Badge variant="outline" className="text-xs">
-                {filters.category}
-                <X
-                  className="h-3 w-3 ml-1 cursor-pointer"
-                  onClick={() => clearFilter('category')}
-                />
-              </Badge>
-            )}
-            {filters.min_rating && (
-              <Badge variant="outline" className="text-xs">
-                {filters.min_rating}★+
-                <X
-                  className="h-3 w-3 ml-1 cursor-pointer"
-                  onClick={() => clearFilter('min_rating')}
-                />
-              </Badge>
-            )}
-            {filters.in_stock_only && (
-              <Badge variant="outline" className="text-xs">
-                In Stock
-                <X
-                  className="h-3 w-3 ml-1 cursor-pointer"
-                  onClick={() => clearFilter('in_stock_only')}
-                />
-              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearAllFilters}
+                className="text-xs h-7"
+              >
+                Clear All
+              </Button>
             )}
           </div>
+        </CardHeader>
+        <div className="overflow-y-auto flex-1 scrollbar-thin scroll-smooth">
+          <CardContent className="p-0">
+            <FilterSection title="Price Range" icon={DollarSign} section="price" />
+            <FilterSection title="Category" icon={Package} section="category" />
+            <FilterSection title="Customer Rating" icon={Star} section="rating" />
+            <FilterSection title="Availability" icon={Package} section="stock" />
+            <FilterSection title="Discounts & Deals" icon={Tag} section="discount" />
+          </CardContent>
         </div>
-      )}
-    </Card>
+
+        {/* Active Filters */}
+        {activeFiltersCount > 0 && (
+          <div className="p-4 border-t bg-gray-50 flex-shrink-0">
+            <p className="text-xs font-medium text-gray-700 mb-2">Active Filters:</p>
+            <div className="flex flex-wrap gap-2">
+              {filters.min_price && (
+                <Badge variant="outline" className="text-xs">
+                  Min: ${filters.min_price}
+                  <X
+                    className="h-3 w-3 ml-1 cursor-pointer"
+                    onClick={() => clearFilter('min_price')}
+                  />
+                </Badge>
+              )}
+              {filters.max_price && (
+                <Badge variant="outline" className="text-xs">
+                  Max: ${filters.max_price}
+                  <X
+                    className="h-3 w-3 ml-1 cursor-pointer"
+                    onClick={() => clearFilter('max_price')}
+                  />
+                </Badge>
+              )}
+              {filters.category && (
+                <Badge variant="outline" className="text-xs">
+                  {filters.category}
+                  <X
+                    className="h-3 w-3 ml-1 cursor-pointer"
+                    onClick={() => clearFilter('category')}
+                  />
+                </Badge>
+              )}
+              {filters.min_rating && (
+                <Badge variant="outline" className="text-xs">
+                  {filters.min_rating}★+
+                  <X
+                    className="h-3 w-3 ml-1 cursor-pointer"
+                    onClick={() => clearFilter('min_rating')}
+                  />
+                </Badge>
+              )}
+              {filters.in_stock_only && (
+                <Badge variant="outline" className="text-xs">
+                  In Stock
+                  <X
+                    className="h-3 w-3 ml-1 cursor-pointer"
+                    onClick={() => clearFilter('in_stock_only')}
+                  />
+                </Badge>
+              )}
+            </div>
+          </div>
+        )}
+      </Card>
+    </div>
   );
 }
