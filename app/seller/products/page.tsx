@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { 
-  Plus, Edit2, Trash2, Package, Search, Eye, Filter
+  Plus, Edit2, Trash2, Package, Search, Eye, Filter, AlertCircle, DollarSign, TrendingUp, ShoppingCart, Image as ImageIcon
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
@@ -25,6 +25,7 @@ interface Product {
   images: string[];
   is_active: boolean;
   created_at: string;
+  sku?: string;
 }
 
 export default function SellerProductsPage() {
@@ -56,106 +57,131 @@ export default function SellerProductsPage() {
     p.name.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
+  // Helper function to get image URL
+  const getImageUrl = (imageUrl: string) => {
+    if (!imageUrl) return '';
+    return imageUrl.startsWith('http') ? imageUrl : `http://localhost:8000${imageUrl}`;
+  };
+
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-6 pt-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="flex-1 space-y-6 p-4 md:p-8 pt-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen">
+      {/* Header with Gradient */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="space-y-1">
-          <h2 className="text-2xl font-semibold tracking-tight">Products</h2>
-          <p className="text-sm text-muted-foreground">
-            Manage your product inventory
+          <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            My Products
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Manage your product inventory and pricing
           </p>
         </div>
         <Link href="/seller/products/new">
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            New Product
+          <Button size="lg" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+            <Plus className="h-5 w-5 mr-2" />
+            Add New Product
           </Button>
         </Link>
       </div>
 
-      {/* Stats */}
+      {/* Stats Cards with Gradients */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-700">Total Products</CardTitle>
-            <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-              <Package className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Products</CardTitle>
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Package className="h-5 w-5 text-white" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{products?.length || 0}</div>
-            <p className="text-xs text-gray-500 mt-1">
+            <div className="text-3xl font-bold text-blue-900 dark:text-blue-100">{products?.length || 0}</div>
+            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               {products?.filter(p => p.is_active).length || 0} active
             </p>
           </CardContent>
         </Card>
         
-        <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+        <Card className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-yellow-200 dark:border-yellow-800 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-700">Low Stock</CardTitle>
-            <div className="w-8 h-8 bg-yellow-50 rounded-lg flex items-center justify-center">
-              <Package className="h-4 w-4 text-yellow-600" />
+            <CardTitle className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Low Stock Alert</CardTitle>
+            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+              <AlertCircle className="h-5 w-5 text-white" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{products?.filter(p => p.stock < 10 && p.stock > 0).length || 0}</div>
-            <p className="text-xs text-gray-500 mt-1">Need attention</p>
+            <div className="text-3xl font-bold text-yellow-900 dark:text-yellow-100">{products?.filter(p => p.stock < 10 && p.stock > 0).length || 0}</div>
+            <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1 flex items-center gap-1">
+              <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
+              Needs restocking
+            </p>
           </CardContent>
         </Card>
         
-        <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-700">Out of Stock</CardTitle>
-            <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
-              <Package className="h-4 w-4 text-red-600" />
+            <CardTitle className="text-sm font-medium text-green-700 dark:text-green-300">Inventory Value</CardTitle>
+            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+              <DollarSign className="h-5 w-5 text-white" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{products?.filter(p => p.stock === 0).length || 0}</div>
-            <p className="text-xs text-gray-500 mt-1">Unavailable</p>
+            <div className="text-3xl font-bold text-green-900 dark:text-green-100">
+              ${products?.reduce((sum, p) => sum + (p.price * p.stock), 0).toFixed(2) || '0.00'}
+            </div>
+            <p className="text-xs text-green-600 dark:text-green-400 mt-1 flex items-center gap-1">
+              <TrendingUp className="h-3 w-3" />
+              Total worth
+            </p>
           </CardContent>
         </Card>
         
-        <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-700">Inactive</CardTitle>
-            <div className="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center">
-              <Package className="h-4 w-4 text-gray-600" />
+            <CardTitle className="text-sm font-medium text-purple-700 dark:text-purple-300">Categories</CardTitle>
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+              <ShoppingCart className="h-5 w-5 text-white" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{products?.filter(p => !p.is_active).length || 0}</div>
-            <p className="text-xs text-gray-500 mt-1">Not listed</p>
+            <div className="text-3xl font-bold text-purple-900 dark:text-purple-100">
+              {new Set(products?.map(p => p.category)).size || 0}
+            </div>
+            <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+              Unique types
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Search Bar */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <Input
-            placeholder="Search products by name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-        <Button variant="outline" className="h-11 px-5 border-gray-300 hover:bg-gray-50">
-          <Filter className="h-4 w-4 mr-2" />
-          Filter
-        </Button>
-      </div>
+      {/* Search Bar with Modern Design */}
+      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-md">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                placeholder="Search products by name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 h-12 text-base border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-xl shadow-sm"
+              />
+            </div>
+            <Button variant="outline" size="lg" className="h-12 px-6 rounded-xl border-gray-300 hover:bg-gray-50 dark:border-gray-600 shadow-sm">
+              <Filter className="h-5 w-5 mr-2" />
+              Filter
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Products Table */}
-      <Card className="bg-white border border-gray-200 shadow-sm">
-        <CardHeader className="bg-gray-50 border-b border-gray-200">
+      {/* Products Table - Enhanced Design */}
+      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg font-semibold text-gray-900">Your Products</CardTitle>
-              <CardDescription className="mt-1 text-sm text-gray-600">
-                {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
+              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Product Catalog</CardTitle>
+              <CardDescription className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} in your inventory
               </CardDescription>
             </div>
           </div>
@@ -203,19 +229,26 @@ export default function SellerProductsPage() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredProducts.map((product) => (
-                    <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={product.id} className="hover:bg-indigo-50/50 dark:hover:bg-gray-700/50 transition-all duration-200 border-b border-gray-100 dark:border-gray-700">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="h-12 w-12 rounded-lg bg-gray-100 flex-shrink-0 overflow-hidden border border-gray-200">
+                          <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 overflow-hidden border-2 border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
                             {product.images && product.images[0] ? (
                               <img
-                                src={product.images[0]}
+                                src={getImageUrl(product.images[0])}
                                 alt={product.name}
-                                className="h-full w-full object-cover"
+                                className="h-full w-full object-cover hover:scale-110 transition-transform duration-300"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const parent = e.currentTarget.parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = '<div class="h-full w-full flex items-center justify-center bg-gray-100"><svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>';
+                                  }
+                                }}
                               />
                             ) : (
-                              <div className="h-full w-full flex items-center justify-center">
-                                <Package className="h-6 w-6 text-gray-400" />
+                              <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                                <ImageIcon className="h-8 w-8 text-gray-400" />
                               </div>
                             )}
                           </div>

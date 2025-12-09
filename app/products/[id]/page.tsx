@@ -26,6 +26,12 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
 
+  // Helper function to get proper image URL
+  const getImageUrl = (imageUrl: string | undefined) => {
+    if (!imageUrl) return '/placeholder-product.png';
+    return imageUrl.startsWith('http') ? imageUrl : `http://localhost:8000${imageUrl}`;
+  };
+
   const handleAddToCart = () => {
     if (!user) {
       router.push('/login');
@@ -100,7 +106,7 @@ export default function ProductDetailPage() {
     : 0;
 
   const images = product.images && product.images.length > 0 
-    ? product.images 
+    ? product.images.map(img => getImageUrl(img))
     : ['/placeholder-product.png'];
 
   return (

@@ -4,8 +4,12 @@ import axios from "axios";
 import useAuthStore from './authStore';
 
 const api = axios.create({
-    baseURL: "http://localhost:8000/api",
-    timeout: 10000, // 10 second timeout
+    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
+    timeout: 30000, // 30 second timeout (increased for development)
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    }
 });
 
 api.interceptors.request.use((config) => {
@@ -22,7 +26,15 @@ api.interceptors.response.use(
         return response;
     },
     (error) => {
-        console.error('❌ API Error:', error.config?.url, error.response?.status, error.response?.data || error.message);
+        // Better error logging
+        if (error.code === 'ECONNABORTED') {
+            console.error('❌ API Timeout:', error.config?.url, 'Request took too long');
+        } else if (error.code === 'ERR_NETWORK') {
+            console.error('❌ Network Error:', error.config?.url, 'Cannot connect to backend. Is Laravel server running?');
+            console.error('💡 Run: cd backend && php artisan serve');
+        } else {
+            console.error('❌ API Error:', error.config?.url, error.response?.status, error.response?.data || error.message);
+        }
         
         // Handle 401 Unauthorized - token expired or invalid
         if (error.response?.status === 401) {

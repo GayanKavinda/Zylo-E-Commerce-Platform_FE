@@ -33,6 +33,12 @@ import {
 const toPriceNumber = (value: number | string | undefined | null) =>
   Number.parseFloat(String(value ?? 0));
 
+// Helper function to get proper image URL
+const getImageUrl = (imageUrl: string | undefined) => {
+  if (!imageUrl) return '/placeholder.png';
+  return imageUrl.startsWith('http') ? imageUrl : `http://localhost:8000${imageUrl}`;
+};
+
 // Clean Modern Product Card Component
 const ProductCard = ({ 
   product, 
@@ -68,9 +74,12 @@ const ProductCard = ({
           {/* Image */}
           <div className="aspect-square overflow-hidden">
             <img
-              src={product.images?.[0] || '/placeholder.png'}
+              src={getImageUrl(product.images?.[0])}
               alt={product.name}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              onError={(e) => {
+                e.currentTarget.src = '/placeholder.png';
+              }}
             />
           </div>
           
@@ -648,7 +657,7 @@ export default function ProductsPage() {
                 <div className="p-6 bg-gray-50 dark:bg-gray-900">
                   <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden aspect-square">
                     <img
-                      src={quickViewProduct.images?.[0] || '/placeholder.png'}
+                      src={getImageUrl(quickViewProduct.images?.[0])}
                       alt={quickViewProduct.name}
                       className="w-full h-full object-cover"
                     />
