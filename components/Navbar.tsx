@@ -13,7 +13,11 @@ import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Home, Package, LayoutDashboard, LogOut } from 'lucide-react';
 import ThemeToggle from './ui/ThemeToggle';
 
-export default function Navbar() {
+// Re-export ModernNavbar as default
+import ModernNavbar from './ModernNavbar';
+export default ModernNavbar;
+
+function OldNavbar() {
   const [mounted, setMounted] = React.useState(false);
   const user = useAuthStore((state) => state.user);
   const logoutMutation = useLogout();

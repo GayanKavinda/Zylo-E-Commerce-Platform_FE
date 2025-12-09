@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { LogIn, AlertCircle } from "lucide-react";
+import { LogIn, AlertCircle, ShoppingCart } from "lucide-react";
 import { useLogin } from "@/lib/hooks/useAuth";
 import { AxiosError } from "axios";
 
@@ -43,12 +43,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
-          <CardDescription>
-            Enter your email and password to access your account
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4 py-8">
+      <Card className="w-full max-w-md shadow-xl dark:bg-gray-800 dark:border-gray-700">
+        <CardHeader className="space-y-1 text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <ShoppingCart className="h-8 w-8 text-white" />
+          </div>
+          <CardTitle className="text-2xl sm:text-3xl font-bold dark:text-white">Welcome Back</CardTitle>
+          <CardDescription className="dark:text-gray-400">
+            Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
 
@@ -88,7 +91,7 @@ export default function LoginPage() {
             </div>
 
             <Button 
-              className="w-full" 
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white" 
               type="submit"
               disabled={loginMutation.isPending}
             >
@@ -105,11 +108,11 @@ export default function LoginPage() {
         </CardContent>
 
         <CardFooter className="flex flex-col space-y-4">
-          <div className="text-sm text-muted-foreground text-center">
+          <div className="text-sm text-muted-foreground dark:text-gray-400 text-center">
             Don&apos;t have an account?{" "}
             <a 
               href="/register" 
-              className="text-primary underline-offset-4 hover:underline font-medium"
+              className="text-indigo-600 dark:text-indigo-400 underline-offset-4 hover:underline font-medium"
             >
               Sign up
             </a>

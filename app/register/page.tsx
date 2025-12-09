@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"customer" | "seller">("customer");
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,6 +33,8 @@ export default function RegisterPage() {
         name,
         email,
         password,
+        password_confirmation: password,
+        role,
       });
 
       // Redirect based on user role after successful registration
@@ -49,11 +52,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-muted/30">
-      <Card className="w-full max-w-md shadow-sm">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4 py-8">
+      <Card className="w-full max-w-md shadow-xl dark:bg-gray-800 dark:border-gray-700">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
-          <CardDescription>Sign up to continue</CardDescription>
+          <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Eye className="h-8 w-8 text-white" />
+          </div>
+          <CardTitle className="text-2xl sm:text-3xl font-bold dark:text-white">Create Account</CardTitle>
+          <CardDescription className="dark:text-gray-400">Sign up to get started</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -98,16 +104,48 @@ export default function RegisterPage() {
               </button>
             </div>
 
-            <Button className="w-full" type="submit" disabled={registerMutation.isPending}>
+            <div className="space-y-2">
+              <label className="text-sm font-medium dark:text-gray-300">Register as:</label>
+              <div className="flex gap-4">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="customer"
+                    checked={role === "customer"}
+                    onChange={(e) => setRole(e.target.value as "customer")}
+                    className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span className="text-sm dark:text-gray-300">Customer</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="seller"
+                    checked={role === "seller"}
+                    onChange={(e) => setRole(e.target.value as "seller")}
+                    className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span className="text-sm dark:text-gray-300">Seller</span>
+                </label>
+              </div>
+            </div>
+
+            <Button 
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white" 
+              type="submit" 
+              disabled={registerMutation.isPending}
+            >
               {registerMutation.isPending ? 'Registering...' : 'Register'}
             </Button>
           </form>
         </CardContent>
 
         <CardFooter className="text-center text-sm">
-          <p className="w-full">
+          <p className="w-full text-muted-foreground dark:text-gray-400">
             Already have an account?{" "}
-            <a href="/login" className="text-primary underline">Login</a>
+            <a href="/login" className="text-indigo-600 dark:text-indigo-400 underline font-medium">Login</a>
           </p>
         </CardFooter>
       </Card>

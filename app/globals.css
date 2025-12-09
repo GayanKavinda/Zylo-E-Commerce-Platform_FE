@@ -15,12 +15,16 @@
 }
 
 body {
-  @apply bg-white text-gray-900;
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  @apply bg-gradient-to-br from-gray-50 via-white to-gray-50 text-gray-900 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 dark:text-gray-100;
+  font-family: var(--font-inter), var(--font-roboto), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  letter-spacing: -0.01em;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  @apply font-semibold text-gray-900;
+  @apply font-semibold text-gray-900 dark:text-gray-100;
+  font-family: var(--font-montserrat), var(--font-inter), sans-serif;
+  letter-spacing: -0.02em;
 }
 
 /* Typography Classes */
@@ -170,18 +174,76 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .animate-slide-down {
-  animation: slideDown 0.3s ease-in-out;
+  animation: slideDown 0.2s ease-out;
+}
+
+/* Scrollbar Thin */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
 }
 
 /* Responsive Typography */
 @media (max-width: 640px) {
   .text-heading-1 {
-    @apply text-3xl;
+    @apply text-2xl;
   }
   
   .text-heading-2 {
-    @apply text-2xl;
+    @apply text-xl;
   }
+
+  .text-heading-3 {
+    @apply text-lg;
+  }
+}
+
+/* Responsive Container */
+.container-responsive {
+  @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+}
+
+/* Mobile Menu */
+.mobile-menu-enter {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.mobile-menu-enter-active {
+  transform: translateX(0);
+  opacity: 1;
+  transition: all 300ms ease-in-out;
+}
+
+.mobile-menu-exit {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.mobile-menu-exit-active {
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: all 300ms ease-in-out;
 }
 
 /* Print Styles */

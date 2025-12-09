@@ -18,6 +18,8 @@ interface LoginCredentials {
 
 interface RegisterData extends LoginCredentials {
   name: string;
+  password_confirmation?: string;
+  role?: 'customer' | 'seller';
 }
 
 interface AuthResponse {

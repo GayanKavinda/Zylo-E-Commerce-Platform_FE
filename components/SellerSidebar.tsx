@@ -87,32 +87,32 @@ export default function SellerSidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 min-h-screen sticky top-0 overflow-y-auto">
+    <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 min-h-screen sticky top-0 overflow-y-auto hidden lg:block">
       {/* Sidebar Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
             <Store className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-gray-900">Seller Portal</h2>
-            <p className="text-xs text-gray-500">Manage your store</p>
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Seller Portal</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Manage your store</p>
           </div>
         </div>
       </div>
 
       {/* Quick Stats */}
       {stats && (
-        <div className="p-4 border-b border-gray-200 bg-gray-50">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-600">Total Revenue</span>
-              <span className="font-semibold text-gray-900">
+              <span className="text-gray-600 dark:text-gray-400">Total Revenue</span>
+              <span className="font-semibold text-gray-900 dark:text-white">
                 ${Number(stats.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
             {stats.low_stock > 0 && (
-              <div className="flex items-center gap-2 text-xs text-orange-600 bg-orange-50 px-2 py-1.5 rounded-md">
+              <div className="flex items-center gap-2 text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950 px-2 py-1.5 rounded-md">
                 <AlertCircle className="h-3 w-3" />
                 <span>{stats.low_stock} low stock items</span>
               </div>
@@ -132,14 +132,14 @@ export default function SellerSidebar() {
               className={cn(
                 'flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
                 isActive
-                  ? 'bg-blue-50 text-blue-700 shadow-sm'
-                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                  ? 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 shadow-sm'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
               )}
             >
               <div className="flex items-center gap-3">
                 <item.icon className={cn(
                   "h-5 w-5",
-                  isActive ? "text-blue-600" : "text-gray-400"
+                  isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-400 dark:text-gray-500"
                 )} />
                 <span>{item.name}</span>
               </div>
@@ -147,8 +147,8 @@ export default function SellerSidebar() {
                 <span className={cn(
                   "inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 text-xs font-semibold rounded-full",
                   item.alert 
-                    ? "bg-red-100 text-red-700" 
-                    : "bg-gray-200 text-gray-700"
+                    ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300" 
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                 )}>
                   {item.badge}
                 </span>
@@ -159,12 +159,12 @@ export default function SellerSidebar() {
       </nav>
 
       {/* Bottom Section */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="flex items-start gap-2 text-xs text-gray-600">
-          <TrendingUp className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" />
+      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
+        <div className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-400">
+          <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-medium text-gray-900">Grow your business</p>
-            <p className="text-gray-500 mt-0.5">Access analytics and reports</p>
+            <p className="font-medium text-gray-900 dark:text-white">Grow your business</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-0.5">Access analytics and reports</p>
           </div>
         </div>
       </div>
