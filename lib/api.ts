@@ -37,9 +37,19 @@ api.interceptors.response.use(
         }
         
         // Handle 401 Unauthorized - token expired or invalid
+        // DON'T auto-logout here - let the component handle it
+        // Auto-logout can cause issues on page refresh
         if (error.response?.status === 401) {
-            console.warn('🔒 Unauthorized - clearing auth and redirecting to login');
-            useAuthStore.getState().logout();
+            console.warn('🔒 Unauthorized - 401 error received from:', error.config?.url);
+            // Only logout if it's a critical endpoint (like /user)
+            // For other endpoints, just let the error propagate
+            const url = error.config?.url;
+            if (url && (url.includes('/logout') || url.includes('/user/me') || url === '/user')) {
+                // These endpoints failing means token is truly invalid
+                console.warn('🔒 Critical endpoint failed - token invalid, logging out');
+                console.warn('🔍 Logout triggered by api.ts interceptor for URL:', url);
+                useAuthStore.getState().logout();
+            }
         }
         
         return Promise.reject(error);

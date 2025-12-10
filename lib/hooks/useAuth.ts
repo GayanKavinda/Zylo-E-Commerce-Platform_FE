@@ -40,13 +40,8 @@ export const useUser = () => {
     enabled: !!token && typeof window !== 'undefined', // Only fetch if token exists and we're on client
     staleTime: 1000 * 60 * 10, // 10 minutes - keep user data fresh
     gcTime: 1000 * 60 * 30, // 30 minutes cache
-    retry: (failureCount, error: any) => {
-      // Don't retry on 401 errors (unauthorized)
-      if (error?.response?.status === 401) {
-        return false;
-      }
-      return failureCount < 2;
-    },
+    retry: false, // Don't retry failed requests
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
   });
 };
 
@@ -142,24 +137,32 @@ export const useAuth = () => {
   }, [data, cachedUser, setUser, token]);
 
   // Handle 401 errors - clear auth state
+  // Only logout if we had a token but API says it's invalid
   useEffect(() => {
-    if (error && (error as any)?.response?.status === 401) {
-      console.warn('🔒 Unauthorized - clearing auth state');
+    if (error && (error as any)?.response?.status === 401 && token) {
+      console.warn('🔒 Unauthorized - token is invalid, clearing auth state');
+      console.warn('🔍 Error details:', {
+        errorMessage: (error as any)?.message,
+        errorResponse: (error as any)?.response,
+        stack: new Error().stack // Show which component triggered this
+      });
       setUser(null);
       logout();
     }
-  }, [error, setUser, logout]);
+  }, [error, setUser, logout, token]);
 
   // Log auth state for debugging
   useEffect(() => {
     console.log('🔐 Auth State:', {
       hasToken: !!token,
+      hasCachedUser: !!cachedUser,
       hasUser: !!user,
       userRole: user?.role,
       isLoading,
       isFetching,
+      error: error ? 'YES' : 'NO'
     });
-  }, [token, user, isLoading, isFetching]);
+  }, [token, cachedUser, user, isLoading, isFetching, error]);
 
   return {
     user,
