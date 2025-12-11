@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import ProfessionalNavbar from '@/components/ProfessionalNavbar';
+import Navbar from '@/components/layout/Navbar';
 import { useAuth } from '@/lib/hooks';
 import { useRouter } from 'next/navigation';
 
@@ -34,7 +34,7 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ProfessionalNavbar />
+      <Navbar />
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>

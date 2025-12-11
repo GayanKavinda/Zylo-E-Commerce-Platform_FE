@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import useAuthStore from '@/lib/authStore';
-import { useLogout } from '@/lib/hooks';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
+import useAuthStore from "@/lib/authStore";
+import { useLogout } from "@/lib/hooks";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,14 +15,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  DropdownMenuGroup,
+} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet';
+} from "@/components/ui/sheet";
 import {
   Search,
   ShoppingCart,
@@ -34,26 +35,45 @@ import {
   LogOut,
   Heart,
   Bell,
-} from 'lucide-react';
-import { APP_CONFIG, ROUTES, NAV_ITEMS, USER_ROLES } from '@/lib/constants';
-import { useCart } from '@/lib/hooks';
+  ChevronDown,
+  X,
+  TrendingUp,
+  Tag,
+  Grid3x3,
+  Store,
+  Users,
+  BarChart3,
+  ShoppingBag,
+  MapPin,
+  CreditCard,
+  HelpCircle,
+  Star,
+  Wallet,
+  UserCircle,
+  Shield,
+} from "lucide-react";
+import { APP_CONFIG, ROUTES, NAV_ITEMS, USER_ROLES } from "@/lib/constants";
+import { useCart } from "@/lib/hooks";
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  // Use Zustand store directly to avoid triggering automatic user fetch
   const user = useAuthStore((state) => state.user);
-  const token = useAuthStore((state) => state.token);
   const logoutMutation = useLogout();
   const { data: cartData } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [scrolled, setScrolled] = useState(false);
 
-  // Only show cart count if user is logged in
-  const cartItemsCount = user ? (cartData?.items_count || 0) : 0;
+  const cartItemsCount = user ? cartData?.items_count || 0 : 0;
 
   useEffect(() => {
-    setMounted(true);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleLogout = async () => {
@@ -61,15 +81,21 @@ export default function Navbar() {
       await logoutMutation.mutateAsync();
       router.push(ROUTES.LOGIN);
     } catch (error) {
-      console.error('Logout failed:', error);
-      // Even if logout fails, redirect to login
+      console.error("Logout failed:", error);
       router.push(ROUTES.LOGIN);
+    }
+  };
+
+  const handleSearch = () => {
+    if (searchValue.trim()) {
+      router.push(`${ROUTES.PRODUCTS}?search=${searchValue}`);
+      setSearchOpen(false);
+      setSearchValue("");
     }
   };
 
   const getNavItemsForRole = () => {
     if (!user) return NAV_ITEMS.PUBLIC;
-    
     switch (user.role) {
       case USER_ROLES.ADMIN:
       case USER_ROLES.SUPERADMIN:
@@ -85,271 +111,327 @@ export default function Navbar() {
 
   const roleNavItems = getNavItemsForRole();
 
-  // Prevent hydration mismatch
-  if (!mounted) {
-    return (
-      <nav className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
+  const quickLinks = [
+    { label: "All Products", href: ROUTES.PRODUCTS, icon: Grid3x3 },
+    {
+      label: "Categories",
+      href: `${ROUTES.PRODUCTS}?view=categories`,
+      icon: Tag,
+    },
+    {
+      label: "Best Deals",
+      href: `${ROUTES.PRODUCTS}?discount=25`,
+      icon: TrendingUp,
+    },
+  ];
+
+  // Icon mapping for role-based items
+  const getIconForLabel = (label: string) => {
+    const map: Record<string, any> = {
+      Dashboard: LayoutDashboard,
+      "My Orders": ShoppingBag,
+      Orders: ShoppingBag,
+      "My Profile": UserCircle,
+      Profile: UserCircle,
+      Products: Package,
+      "My Products": Store,
+      Analytics: BarChart3,
+      Users: Users,
+      Wishlist: Heart,
+      Addresses: MapPin,
+      "Payment Methods": CreditCard,
+    };
+    return map[label] || Package;
+  };
+
+  return (
+    <>
+      {/* Top Banner */}
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white text-center py-2 px-4 text-sm font-medium">
+        <span className="hidden sm:inline">
+          Free Shipping on Orders Over $50 |{" "}
+        </span>
+        Use Code: WELCOME10 for 10% Off
+      </div>
+
+      {/* Main Navbar */}
+      <nav
+        className={`sticky top-0 z-50 w-full bg-white border-b transition-all duration-300 ${
+          scrolled ? "shadow-md" : "shadow-sm"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            {/* Left: Logo + Links */}
             <div className="flex items-center space-x-8">
-              <Link href={ROUTES.PRODUCTS} className="flex items-center space-x-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-lg">
-                  M
+              <Link
+                href={ROUTES.PRODUCTS}
+                className="flex items-center space-x-3 group"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="relative bg-gradient-to-br from-blue-600 to-purple-600 text-white font-bold text-xl w-12 h-12 rounded-xl flex items-center justify-center transform group-hover:scale-105 transition-transform">
+                    M
+                  </div>
                 </div>
-                <span className="text-xl font-semibold text-gray-900 hidden sm:block">
-                  {APP_CONFIG.NAME}
-                </span>
+                <div className="hidden lg:block">
+                  <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {APP_CONFIG.NAME}
+                  </div>
+                  <div className="text-xs text-gray-500 -mt-1">
+                    Premium Shopping
+                  </div>
+                </div>
               </Link>
+
+              <div className="hidden lg:flex items-center space-x-1">
+                {quickLinks.map((link) => {
+                  const Icon = link.icon;
+                  return (
+                    <Link key={link.href} href={link.href}>
+                      <button className="group relative px-4 py-2 rounded-lg overflow-hidden transition-all duration-300 hover:bg-gray-50">
+                        <div className="flex items-center space-x-2">
+                          <Icon className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors" />
+                          <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
+                            {link.label}
+                          </span>
+                        </div>
+                        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                      </button>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Center: Search */}
+            <div className="hidden md:flex flex-1 max-w-lg mx-8">
+              <div className="relative w-full group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                <div className="relative flex items-center">
+                  <Input
+                    type="search"
+                    placeholder="Search for products, brands, and more..."
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                    className="w-full pl-5 pr-12 py-6 rounded-full border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                  />
+                  <button
+                    onClick={handleSearch}
+                    className="absolute right-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2.5 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  >
+                    <Search className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Actions */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setSearchOpen(!searchOpen)}
+                className="md:hidden p-2 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                {searchOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Search className="w-5 h-5" />
+                )}
+              </button>
+
+              {user && (
+                <>
+                  <button className="hidden sm:flex relative p-2 rounded-full hover:bg-gray-100 group">
+                    <Heart className="w-5 h-5 text-gray-600 group-hover:text-red-500 transition-colors" />
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                      0
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => router.push(ROUTES.CART)}
+                    className="relative p-2 rounded-full hover:bg-gray-100 group"
+                  >
+                    <ShoppingCart className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
+                    {cartItemsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold animate-pulse">
+                        {cartItemsCount}
+                      </span>
+                    )}
+                  </button>
+                </>
+              )}
+
+              {/* USER DROPDOWN – Compact & Beautiful */}
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center space-x-3 px-4 py-2 rounded-full hover:bg-gray-100 transition-all group">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-lg transition-shadow">
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="hidden lg:block text-left">
+                        <div className="text-sm font-semibold">
+                          {user.name.split(" ")[0]}
+                        </div>
+                        <div className="text-xs text-gray-500 capitalize">
+                          {user.role}
+                        </div>
+                      </div>
+                      <ChevronDown className="w-4 h-4 text-gray-500 group-hover:text-blue-600 transition-colors" />
+                    </button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-72 mt-2 p-3 rounded-2xl shadow-xl border border-gray-200 bg-white"
+                  >
+                    {/* Compact Header */}
+                    <div className="flex items-center space-x-3 pb-3 border-b">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900">
+                          {user.name}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {user.email}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Role-based Links – Clean & Icon-only on left */}
+                    <div className="py-2 space-y-1">
+                      {roleNavItems.map((item) => {
+                        const Icon = getIconForLabel(item.label);
+                        return (
+                          <DropdownMenuItem
+                            key={item.href}
+                            onClick={() => router.push(item.href)}
+                            className="flex items-center space-x-3 rounded-xl px-3 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
+                          >
+                            <Icon className="w-4 h-4 text-gray-600" />
+                            <span className="font-medium text-gray-800">
+                              {item.label}
+                            </span>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </div>
+
+                    <DropdownMenuSeparator className="my-2" />
+
+                    {/* Quick Actions */}
+                    <div className="space-y-1">
+                      <DropdownMenuItem
+                        onClick={() => router.push(ROUTES.PROFILE)}
+                        className="flex items-center space-x-3 rounded-xl px-3 py-2.5 hover:bg-gray-50 cursor-pointer"
+                      >
+                        <Settings className="w-4 h-4 text-gray-600" />
+                        <span className="font-medium">Settings</span>
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem
+                        onClick={() => router.push("/help")}
+                        className="flex items-center space-x-3 rounded-xl px-3 py-2.5 hover:bg-gray-50 cursor-pointer"
+                      >
+                        <HelpCircle className="w-4 h-4 text-gray-600" />
+                        <span className="font-medium">Help & Support</span>
+                      </DropdownMenuItem>
+                    </div>
+
+                    <DropdownMenuSeparator className="my-2" />
+
+                    {/* Logout */}
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="flex items-center space-x-3 rounded-xl px-3 py-2.5 hover:bg-red-50 text-red-600 cursor-pointer font-medium"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                // Your existing guest buttons
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    onClick={() => router.push(ROUTES.LOGIN)}
+                    className="hidden sm:flex rounded-full px-5 hover:bg-gray-100"
+                  >
+                    <User className="w-4 h-4 mr-2" /> Login
+                  </Button>
+                  <Button
+                    onClick={() => router.push(ROUTES.REGISTER)}
+                    className="rounded-full px-5 bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg transform hover:scale-105 transition-all"
+                  >
+                    Sign Up
+                  </Button>
+                </div>
+              )}
+
+              {/* Mobile Menu Trigger */}
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <button className="lg:hidden p-2 rounded-full hover:bg-gray-100">
+                    <Menu className="w-6 h-6" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-80 p-0">
+                  {/* Mobile menu content - you can enhance this too if needed */}
+                  <div className="h-full flex flex-col">
+                    <SheetHeader className="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                      <SheetTitle className="text-xl font-bold">
+                        Menu
+                      </SheetTitle>
+                      {user && (
+                        <div className="mt-4 flex items-center space-x-3">
+                          <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-white font-bold text-lg">
+                            {user.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="font-semibold">{user.name}</div>
+                            <Badge className="mt-1 bg-white/20 text-white border-0 text-xs">
+                              {user.role}
+                            </Badge>
+                          </div>
+                        </div>
+                      )}
+                    </SheetHeader>
+                    {/* Add mobile items similar to desktop if desired */}
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
-      </nav>
-    );
-  }
 
-  return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center space-x-8">
-            <Link href={ROUTES.PRODUCTS} className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-lg">
-                M
-              </div>
-              <span className="text-xl font-semibold text-gray-900 hidden sm:block">
-                {APP_CONFIG.NAME}
-              </span>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1">
-              <Link href={ROUTES.PRODUCTS}>
-                <Button
-                  variant={pathname === ROUTES.PRODUCTS ? 'secondary' : 'ghost'}
-                  size="sm"
-                  className="text-sm"
-                >
-                  Products
-                </Button>
-              </Link>
-              <Link href={`${ROUTES.PRODUCTS}?view=categories`}>
-                <Button variant="ghost" size="sm" className="text-sm">
-                  Categories
-                </Button>
-              </Link>
-              <Link href={`${ROUTES.PRODUCTS}?discount=25`}>
-                <Button variant="ghost" size="sm" className="text-sm">
-                  Deals
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          {/* Search Bar - Desktop */}
-          <div className="hidden lg:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        {/* Mobile Search */}
+        {searchOpen && (
+          <div className="md:hidden border-t bg-gray-50 p-4">
+            <div className="relative">
               <Input
                 type="search"
                 placeholder="Search products..."
-                className="pl-10 pr-4 w-full"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    router.push(`${ROUTES.PRODUCTS}?search=${e.currentTarget.value}`);
-                  }
-                }}
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                autoFocus
+                className="w-full pl-5 pr-12 py-6 rounded-full border-2 border-gray-200 focus:border-blue-500"
               />
+              <button
+                onClick={handleSearch}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2.5 rounded-full"
+              >
+                <Search className="w-4 h-4" />
+              </button>
             </div>
           </div>
-
-          {/* Right Section */}
-          <div className="flex items-center space-x-2">
-            {/* Mobile Search */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden">
-                  <Search className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="top">
-                <SheetHeader>
-                  <SheetTitle>Search Products</SheetTitle>
-                </SheetHeader>
-                <div className="mt-4">
-                  <Input
-                    type="search"
-                    placeholder="Search products..."
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        router.push(`${ROUTES.PRODUCTS}?search=${e.currentTarget.value}`);
-                      }
-                    }}
-                  />
-                </div>
-              </SheetContent>
-            </Sheet>
-
-            {/* Cart */}
-            {user && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative"
-                onClick={() => router.push(ROUTES.CART)}
-              >
-                <ShoppingCart className="h-5 w-5" />
-                {cartItemsCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
-                  >
-                    {cartItemsCount}
-                  </Badge>
-                )}
-              </Button>
-            )}
-
-            {/* User Menu or Login */}
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-medium">
-                      {user.name.charAt(0).toUpperCase()}
-                    </div>
-                    <span className="hidden sm:block text-sm font-medium">
-                      {user.name}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">{user.name}</p>
-                      <p className="text-xs text-gray-500">{user.email}</p>
-                      <Badge variant="outline" className="w-fit text-xs">
-                        {user.role}
-                      </Badge>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  
-                  {roleNavItems.map((item) => (
-                    <DropdownMenuItem
-                      key={item.href}
-                      onClick={() => router.push(item.href)}
-                    >
-                      {item.label === 'Dashboard' && <LayoutDashboard className="mr-2 h-4 w-4" />}
-                      {item.label === 'My Orders' && <Package className="mr-2 h-4 w-4" />}
-                      {item.label === 'My Profile' && <User className="mr-2 h-4 w-4" />}
-                      {item.label === 'Products' && <Package className="mr-2 h-4 w-4" />}
-                      {item.label === 'Orders' && <Package className="mr-2 h-4 w-4" />}
-                      {item.label === 'My Products' && <Package className="mr-2 h-4 w-4" />}
-                      {item.label === 'Analytics' && <LayoutDashboard className="mr-2 h-4 w-4" />}
-                      {item.label === 'Users' && <User className="mr-2 h-4 w-4" />}
-                      {item.label}
-                    </DropdownMenuItem>
-                  ))}
-                  
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push(ROUTES.PROFILE)}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.push(ROUTES.LOGIN)}
-                >
-                  Login
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => router.push(ROUTES.REGISTER)}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  Sign Up
-                </Button>
-              </div>
-            )}
-
-            {/* Mobile Menu */}
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right">
-                <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
-                </SheetHeader>
-                <div className="mt-6 flex flex-col space-y-3">
-                  <Button
-                    variant="ghost"
-                    className="justify-start"
-                    onClick={() => {
-                      router.push(ROUTES.PRODUCTS);
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Products
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="justify-start"
-                    onClick={() => {
-                      router.push(`${ROUTES.PRODUCTS}?view=categories`);
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Categories
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="justify-start"
-                    onClick={() => {
-                      router.push(`${ROUTES.PRODUCTS}?discount=25`);
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Deals
-                  </Button>
-                  
-                  {user && (
-                    <>
-                      <hr className="my-2" />
-                      {roleNavItems.map((item) => (
-                        <Button
-                          key={item.href}
-                          variant="ghost"
-                          className="justify-start"
-                          onClick={() => {
-                            router.push(item.href);
-                            setMobileMenuOpen(false);
-                          }}
-                        >
-                          {item.label}
-                        </Button>
-                      ))}
-                    </>
-                  )}
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </div>
-    </nav>
+        )}
+      </nav>
+    </>
   );
 }

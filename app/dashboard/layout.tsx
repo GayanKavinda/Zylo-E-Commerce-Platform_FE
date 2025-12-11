@@ -2,8 +2,8 @@
 'use client';
 
 import { ReactNode, useState, useEffect } from 'react';
-import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
+import Navbar from '@/components/layout/Navbar';
+
 import useAuthStore from "@/lib/authStore";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -27,8 +27,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Sidebar */}
-      <Sidebar />
+
 
       {/* Main content */}
       <div className="flex-1 flex flex-col">
